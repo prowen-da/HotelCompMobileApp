@@ -26,6 +26,9 @@ export default function RootLayout() {
         <Stack.Screen name="(main)/home" />
         <Stack.Screen name="(main)/search-location" />
         <Stack.Screen name="(main)/comparison" />
+        <Stack.Screen name="(main)/hotel-listing" />
+        <Stack.Screen name="(main)/hotel-details" />
+        <Stack.Screen name="(main)/map-view" />
       </Stack>
     </GestureHandlerRootView>
   );

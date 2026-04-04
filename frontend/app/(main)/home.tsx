@@ -86,7 +86,7 @@ export default function HomeScreen() {
       withSpring(1)
     );
     setTimeout(() => {
-      router.push('/(main)/comparison');
+      router.push('/(main)/hotel-listing');
     }, 200);
   };
 
