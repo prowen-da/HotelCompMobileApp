@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,11 +11,115 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  withDelay,
+  withRepeat,
+  withSequence,
+  Easing,
+  FadeInDown,
+  FadeInUp,
+} from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
+  
+  // Animation values
+  const globeRotate = useSharedValue(0);
+  const planeX = useSharedValue(-50);
+  const planeY = useSharedValue(0);
+  const iconScale1 = useSharedValue(0);
+  const iconScale2 = useSharedValue(0);
+  const iconScale3 = useSharedValue(0);
+  const loginButtonScale = useSharedValue(1);
+  const createButtonScale = useSharedValue(1);
+
+  useEffect(() => {
+    // Globe subtle rotation
+    globeRotate.value = withRepeat(
+      withSequence(
+        withTiming(5, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(-5, { duration: 3000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      true
+    );
+
+    // Plane flying animation
+    planeX.value = withRepeat(
+      withSequence(
+        withTiming(50, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(-50, { duration: 2000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      true
+    );
+    planeY.value = withRepeat(
+      withSequence(
+        withTiming(-10, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(10, { duration: 1000, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      true
+    );
+
+    // Icons pop in
+    iconScale1.value = withDelay(500, withSpring(1, { damping: 10 }));
+    iconScale2.value = withDelay(700, withSpring(1, { damping: 10 }));
+    iconScale3.value = withDelay(900, withSpring(1, { damping: 10 }));
+  }, []);
+
+  const globeStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${globeRotate.value}deg` }],
+  }));
+
+  const planeStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: planeX.value },
+      { translateY: planeY.value },
+      { rotate: '45deg' },
+    ],
+  }));
+
+  const icon1Style = useAnimatedStyle(() => ({
+    transform: [{ scale: iconScale1.value }],
+  }));
+  const icon2Style = useAnimatedStyle(() => ({
+    transform: [{ scale: iconScale2.value }],
+  }));
+  const icon3Style = useAnimatedStyle(() => ({
+    transform: [{ scale: iconScale3.value }],
+  }));
+
+  const handleLoginPress = () => {
+    loginButtonScale.value = withSequence(
+      withTiming(0.95, { duration: 100 }),
+      withSpring(1)
+    );
+    router.push('/(auth)/login');
+  };
+
+  const handleCreatePress = () => {
+    createButtonScale.value = withSequence(
+      withTiming(0.95, { duration: 100 }),
+      withSpring(1)
+    );
+    router.push('/(auth)/register');
+  };
+
+  const loginButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: loginButtonScale.value }],
+  }));
+
+  const createButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: createButtonScale.value }],
+  }));
 
   return (
     <LinearGradient
@@ -25,53 +129,68 @@ export default function WelcomeScreen() {
       end={{ x: 1, y: 1 }}
     >
       <View style={[styles.content, { paddingTop: insets.top + 40 }]}>
-        <Text style={styles.title}>Your Perfect Stay Awaits</Text>
-        <Text style={styles.subtitle}>
+        <Animated.Text 
+          entering={FadeInDown.delay(200).springify()}
+          style={styles.title}
+        >
+          Your Perfect Stay Awaits
+        </Animated.Text>
+        <Animated.Text 
+          entering={FadeInDown.delay(400).springify()}
+          style={styles.subtitle}
+        >
           Explore hotel comparisons, smart insights, and everything you need to
           choose the right stay.
-        </Text>
+        </Animated.Text>
 
         <View style={styles.illustrationContainer}>
           <View style={styles.glassCard}>
-            <BlurView intensity={20} style={styles.blurContainer}>
+            <View style={styles.blurContainer}>
               <View style={styles.globeContainer}>
-                <Ionicons name="globe-outline" size={120} color="rgba(255,255,255,0.9)" />
-                <View style={styles.planeContainer}>
+                <Animated.View style={globeStyle}>
+                  <Ionicons name="globe-outline" size={120} color="rgba(255,255,255,0.9)" />
+                </Animated.View>
+                <Animated.View style={[styles.planeContainer, planeStyle]}>
                   <Ionicons name="airplane" size={40} color="#fff" />
-                </View>
+                </Animated.View>
               </View>
               <View style={styles.travelIcons}>
-                <View style={styles.travelIcon}>
+                <Animated.View style={[styles.travelIcon, icon1Style]}>
                   <Ionicons name="bed" size={24} color="#667eea" />
-                </View>
-                <View style={styles.travelIcon}>
+                </Animated.View>
+                <Animated.View style={[styles.travelIcon, icon2Style]}>
                   <Ionicons name="briefcase" size={24} color="#667eea" />
-                </View>
-                <View style={styles.travelIcon}>
+                </Animated.View>
+                <Animated.View style={[styles.travelIcon, icon3Style]}>
                   <Ionicons name="camera" size={24} color="#667eea" />
-                </View>
+                </Animated.View>
               </View>
-            </BlurView>
+            </View>
           </View>
         </View>
 
-        <View style={[styles.buttonContainer, { paddingBottom: insets.bottom + 30 }]}>
-          <TouchableOpacity
-            style={styles.loginButton}
-            onPress={() => router.push('/(auth)/login')}
+        <Animated.View 
+          style={[styles.buttonContainer, { paddingBottom: insets.bottom + 30 }]}
+          entering={FadeInUp.delay(600).springify()}
+        >
+          <AnimatedTouchable
+            style={[styles.loginButton, loginButtonStyle]}
+            onPress={handleLoginPress}
+            activeOpacity={0.9}
           >
             <BlurView intensity={30} style={styles.buttonBlur}>
               <Text style={styles.loginButtonText}>Login</Text>
             </BlurView>
-          </TouchableOpacity>
+          </AnimatedTouchable>
 
-          <TouchableOpacity
-            style={styles.createButton}
-            onPress={() => router.push('/(auth)/register')}
+          <AnimatedTouchable
+            style={[styles.createButton, createButtonStyle]}
+            onPress={handleCreatePress}
+            activeOpacity={0.9}
           >
             <Text style={styles.createButtonText}>Create an Account</Text>
-          </TouchableOpacity>
-        </View>
+          </AnimatedTouchable>
+        </Animated.View>
       </View>
     </LinearGradient>
   );
@@ -124,7 +243,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -10,
     right: -20,
-    transform: [{ rotate: '45deg' }],
   },
   travelIcons: {
     flexDirection: 'row',

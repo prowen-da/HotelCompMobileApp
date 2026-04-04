@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,15 +6,32 @@ import {
   Dimensions,
   TouchableOpacity,
   ScrollView,
-  Animated,
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  withDelay,
+  withRepeat,
+  withSequence,
+  interpolate,
+  Extrapolation,
+  Easing,
+  FadeIn,
+  FadeInDown,
+  FadeInUp,
+  SlideInRight,
+} from 'react-native-reanimated';
 
 const { width, height } = Dimensions.get('window');
+
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 const onboardingData = [
   {
@@ -43,13 +60,124 @@ const onboardingData = [
   },
 ];
 
+const OnboardingSlide = ({ item, index, scrollX }: { item: typeof onboardingData[0]; index: number; scrollX: Animated.SharedValue<number> }) => {
+  const floatY = useSharedValue(0);
+  const cardScale = useSharedValue(0.8);
+  const iconRotate = useSharedValue(0);
+
+  useEffect(() => {
+    // Floating animation
+    floatY.value = withRepeat(
+      withSequence(
+        withTiming(-10, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
+        withTiming(10, { duration: 1500, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      true
+    );
+
+    // Card entrance
+    cardScale.value = withDelay(200, withSpring(1, { damping: 12 }));
+
+    // Icon animation
+    iconRotate.value = withRepeat(
+      withSequence(
+        withTiming(5, { duration: 2000 }),
+        withTiming(-5, { duration: 2000 })
+      ),
+      -1,
+      true
+    );
+  }, []);
+
+  const floatingStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: floatY.value }],
+  }));
+
+  const cardAnimatedStyle = useAnimatedStyle(() => {
+    const inputRange = [(index - 1) * width, index * width, (index + 1) * width];
+    const scale = interpolate(
+      scrollX.value,
+      inputRange,
+      [0.85, 1, 0.85],
+      Extrapolation.CLAMP
+    );
+    const opacity = interpolate(
+      scrollX.value,
+      inputRange,
+      [0.5, 1, 0.5],
+      Extrapolation.CLAMP
+    );
+    return {
+      transform: [{ scale }],
+      opacity,
+    };
+  });
+
+  const iconAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${iconRotate.value}deg` }],
+  }));
+
+  return (
+    <View style={styles.slide}>
+      <Animated.View style={[styles.illustrationContainer, floatingStyle]}>
+        <Animated.View style={[styles.glassCard, cardAnimatedStyle]}>
+          <BlurView intensity={20} style={styles.blurContainer}>
+            <Animated.View style={[styles.iconContainer, iconAnimatedStyle]}>
+              <Ionicons name={item.icon as any} size={80} color="#fff" />
+            </Animated.View>
+            <View style={styles.mockPhone}>
+              <View style={styles.phoneScreen}>
+                <View style={styles.mockHeader}>
+                  <Ionicons name="home" size={16} color="#667eea" />
+                  <Text style={styles.mockTitle}>Booking</Text>
+                  <Ionicons name="menu" size={16} color="#667eea" />
+                </View>
+                <View style={styles.mockContent}>
+                  {[1, 2, 3].map((_, i) => (
+                    <Animated.View
+                      key={i}
+                      entering={FadeInDown.delay(300 + i * 100).springify()}
+                      style={styles.mockCard}
+                    >
+                      <View style={styles.mockCardIcon} />
+                      <View style={styles.mockCardText}>
+                        <View style={styles.mockLine} />
+                        <View style={[styles.mockLine, { width: 40 }]} />
+                      </View>
+                    </Animated.View>
+                  ))}
+                </View>
+              </View>
+            </View>
+          </BlurView>
+        </Animated.View>
+      </Animated.View>
+
+      <Animated.View 
+        style={styles.textContainer}
+        entering={FadeInUp.delay(400).springify()}
+      >
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.description}>{item.description}</Text>
+      </Animated.View>
+    </View>
+  );
+};
+
 export default function OnboardingScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const scrollX = useRef(new Animated.Value(0)).current;
+  const scrollX = useSharedValue(0);
   const scrollViewRef = useRef<ScrollView>(null);
   const insets = useSafeAreaInsets();
+  const buttonScale = useSharedValue(1);
 
   const handleNext = () => {
+    buttonScale.value = withSequence(
+      withTiming(0.95, { duration: 100 }),
+      withSpring(1)
+    );
+    
     if (currentIndex < onboardingData.length - 1) {
       scrollViewRef.current?.scrollTo({
         x: (currentIndex + 1) * width,
@@ -66,9 +194,14 @@ export default function OnboardingScreen() {
   };
 
   const handleScroll = (event: any) => {
+    scrollX.value = event.nativeEvent.contentOffset.x;
     const index = Math.round(event.nativeEvent.contentOffset.x / width);
     setCurrentIndex(index);
   };
+
+  const buttonAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScale.value }],
+  }));
 
   return (
     <View style={styles.container}>
@@ -79,79 +212,72 @@ export default function OnboardingScreen() {
         end={{ x: 1, y: 1 }}
       />
 
-      <TouchableOpacity
-        style={[styles.skipButton, { top: insets.top + 10 }]}
-        onPress={handleSkip}
-      >
-        <Text style={styles.skipText}>Skip</Text>
-      </TouchableOpacity>
+      <Animated.View entering={FadeIn.delay(200)}>
+        <TouchableOpacity
+          style={[styles.skipButton, { top: insets.top + 10 }]}
+          onPress={handleSkip}
+        >
+          <Text style={styles.skipText}>Skip</Text>
+        </TouchableOpacity>
+      </Animated.View>
 
-      <Animated.ScrollView
+      <ScrollView
         ref={scrollViewRef}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-          { useNativeDriver: true }
-        )}
-        onMomentumScrollEnd={handleScroll}
+        onScroll={handleScroll}
         scrollEventThrottle={16}
       >
         {onboardingData.map((item, index) => (
-          <View key={item.id} style={styles.slide}>
-            <View style={styles.illustrationContainer}>
-              <View style={styles.glassCard}>
-                <BlurView intensity={20} style={styles.blurContainer}>
-                  <View style={styles.iconContainer}>
-                    <Ionicons name={item.icon as any} size={80} color="#fff" />
-                  </View>
-                  <View style={styles.mockPhone}>
-                    <View style={styles.phoneScreen}>
-                      <View style={styles.mockHeader}>
-                        <Ionicons name="home" size={16} color="#667eea" />
-                        <Text style={styles.mockTitle}>Booking</Text>
-                        <Ionicons name="menu" size={16} color="#667eea" />
-                      </View>
-                      <View style={styles.mockContent}>
-                        {[1, 2, 3].map((_, i) => (
-                          <View key={i} style={styles.mockCard}>
-                            <View style={styles.mockCardIcon} />
-                            <View style={styles.mockCardText}>
-                              <View style={styles.mockLine} />
-                              <View style={[styles.mockLine, { width: 40 }]} />
-                            </View>
-                          </View>
-                        ))}
-                      </View>
-                    </View>
-                  </View>
-                </BlurView>
-              </View>
-            </View>
-
-            <View style={styles.textContainer}>
-              <Text style={styles.title}>{item.title}</Text>
-              <Text style={styles.description}>{item.description}</Text>
-            </View>
-          </View>
+          <OnboardingSlide
+            key={item.id}
+            item={item}
+            index={index}
+            scrollX={scrollX}
+          />
         ))}
-      </Animated.ScrollView>
+      </ScrollView>
 
-      <View style={[styles.bottomContainer, { paddingBottom: insets.bottom + 20 }]}>
+      <Animated.View 
+        style={[styles.bottomContainer, { paddingBottom: insets.bottom + 20 }]}
+        entering={FadeInUp.delay(600)}
+      >
         <View style={styles.pagination}>
-          {onboardingData.map((_, index) => (
-            <View
-              key={index}
-              style={[
-                styles.dot,
-                currentIndex === index && styles.activeDot,
-              ]}
-            />
-          ))}
+          {onboardingData.map((_, index) => {
+            const dotWidth = useAnimatedStyle(() => {
+              const inputRange = [(index - 1) * width, index * width, (index + 1) * width];
+              const dotW = interpolate(
+                scrollX.value,
+                inputRange,
+                [8, 24, 8],
+                Extrapolation.CLAMP
+              );
+              const opacity = interpolate(
+                scrollX.value,
+                inputRange,
+                [0.4, 1, 0.4],
+                Extrapolation.CLAMP
+              );
+              return {
+                width: dotW,
+                opacity,
+              };
+            });
+            return (
+              <Animated.View
+                key={index}
+                style={[styles.dot, dotWidth]}
+              />
+            );
+          })}
         </View>
 
-        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+        <AnimatedTouchable 
+          style={[styles.nextButton, buttonAnimatedStyle]} 
+          onPress={handleNext}
+          activeOpacity={0.9}
+        >
           <BlurView intensity={30} style={styles.nextButtonBlur}>
             <Text style={styles.nextButtonText}>
               {currentIndex === onboardingData.length - 1 ? 'Get Started' : 'Next'}
@@ -162,8 +288,8 @@ export default function OnboardingScreen() {
               color="#fff"
             />
           </BlurView>
-        </TouchableOpacity>
-      </View>
+        </AnimatedTouchable>
+      </Animated.View>
     </View>
   );
 }
@@ -303,13 +429,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   dot: {
-    width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.4)',
-  },
-  activeDot: {
-    width: 24,
     backgroundColor: '#fff',
   },
   nextButton: {

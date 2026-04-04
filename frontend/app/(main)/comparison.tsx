@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,8 +12,25 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  withDelay,
+  withSequence,
+  Easing,
+  FadeIn,
+  FadeInDown,
+  FadeInUp,
+  SlideInLeft,
+  SlideInRight,
+  ZoomIn,
+  Layout,
+} from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 const tabs = ['Overview', 'Scores', 'Prices'];
 
@@ -45,18 +62,100 @@ const getScoreColor = (score: number) => {
   return '#F87171';
 };
 
+// Animated Bar Component
+const AnimatedBar = ({ hotel, index, maxScore = 100 }: { hotel: typeof hotels[0]; index: number; maxScore?: number }) => {
+  const barHeight = useSharedValue(0);
+
+  useEffect(() => {
+    barHeight.value = withDelay(
+      index * 100,
+      withSpring(hotel.score * 1.8, { damping: 12 })
+    );
+  }, []);
+
+  const barStyle = useAnimatedStyle(() => ({
+    height: barHeight.value,
+  }));
+
+  return (
+    <View style={styles.barContainer}>
+      <Animated.View style={[styles.bar, barStyle]} />
+      <Text style={styles.barLabel} numberOfLines={1}>
+        {hotel.name.split(' ')[0]}...
+      </Text>
+    </View>
+  );
+};
+
+// Animated Sentiment Bar
+const AnimatedSentimentBar = ({ hotel, index }: { hotel: typeof hotels[0]; index: number }) => {
+  const barWidth = useSharedValue(0);
+
+  useEffect(() => {
+    barWidth.value = withDelay(index * 150, withTiming(1, { duration: 800 }));
+  }, []);
+
+  const sentimentStyle = useAnimatedStyle(() => ({
+    transform: [{ scaleX: barWidth.value }],
+  }));
+
+  return (
+    <Animated.View 
+      style={styles.sentimentRow}
+      entering={FadeInDown.delay(index * 100)}
+    >
+      <View style={styles.sentimentHeader}>
+        <Text style={styles.sentimentHotel}>{hotel.name}</Text>
+        <Text style={styles.sentimentReviews}>
+          {(Math.random() * 2 + 1).toFixed(1)}k reviews
+        </Text>
+      </View>
+      <Animated.View style={[styles.sentimentBar, sentimentStyle]}>
+        <View style={[styles.sentimentSegment, { flex: 7, backgroundColor: '#10B981' }]} />
+        <View style={[styles.sentimentSegment, { flex: 2, backgroundColor: '#9CA3AF' }]} />
+        <View style={[styles.sentimentSegment, { flex: 1, backgroundColor: '#EF4444' }]} />
+      </Animated.View>
+    </Animated.View>
+  );
+};
+
 export default function ComparisonScreen() {
   const [activeTab, setActiveTab] = useState(0);
   const [selectedPlatform, setSelectedPlatform] = useState('All Platforms');
   const insets = useSafeAreaInsets();
 
+  const tabIndicatorX = useSharedValue(0);
+  const bookButtonScale = useSharedValue(1);
+
   const bestHotel = hotels.reduce((prev, current) =>
     prev.score > current.score ? prev : current
   );
 
+  useEffect(() => {
+    tabIndicatorX.value = withSpring(activeTab * (width - 40) / 3, { damping: 15 });
+  }, [activeTab]);
+
+  const tabIndicatorStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: tabIndicatorX.value }],
+  }));
+
+  const handleBookPress = () => {
+    bookButtonScale.value = withSequence(
+      withTiming(0.95, { duration: 100 }),
+      withSpring(1)
+    );
+  };
+
+  const bookButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: bookButtonScale.value }],
+  }));
+
   const renderOverviewTab = () => (
     <>
-      <View style={styles.bestChoiceCard}>
+      <Animated.View 
+        style={styles.bestChoiceCard}
+        entering={FadeInDown.delay(200).springify()}
+      >
         <LinearGradient
           colors={['#0d665c', '#11998e']}
           style={styles.bestChoiceGradient}
@@ -64,7 +163,9 @@ export default function ComparisonScreen() {
           end={{ x: 1, y: 1 }}
         >
           <View style={styles.bestChoiceHeader}>
-            <Ionicons name="trophy" size={24} color="#FFD700" />
+            <Animated.View entering={ZoomIn.delay(400)}>
+              <Ionicons name="trophy" size={24} color="#FFD700" />
+            </Animated.View>
             <Text style={styles.bestChoiceLabel}>Best Overall Choice</Text>
           </View>
           <Text style={styles.bestChoiceTitle}>{bestHotel.name.toUpperCase()}</Text>
@@ -74,26 +175,42 @@ export default function ComparisonScreen() {
           </Text>
           <View style={styles.bestChoiceFooter}>
             <View style={styles.tagContainer}>
-              <View style={styles.tag}>
+              <Animated.View 
+                style={styles.tag}
+                entering={SlideInLeft.delay(500)}
+              >
                 <Text style={styles.tagText}>Luxury</Text>
-              </View>
-              <View style={styles.tag}>
+              </Animated.View>
+              <Animated.View 
+                style={styles.tag}
+                entering={SlideInLeft.delay(600)}
+              >
                 <Text style={styles.tagText}>Business</Text>
-              </View>
+              </Animated.View>
             </View>
-            <View style={styles.scoreContainer}>
+            <Animated.View 
+              style={styles.scoreContainer}
+              entering={ZoomIn.delay(700)}
+            >
               <Text style={styles.scoreValue}>9.1</Text>
               <Text style={styles.scoreLabel}>Composite score</Text>
-            </View>
+            </Animated.View>
           </View>
         </LinearGradient>
-      </View>
+      </Animated.View>
 
-      <View style={styles.sectionContainer}>
+      <Animated.View 
+        style={styles.sectionContainer}
+        entering={FadeInUp.delay(300).springify()}
+      >
         <Text style={styles.sectionTitle}>QUICK COMPARISON</Text>
         <View style={styles.quickCompareRow}>
           {hotels.slice(0, 2).map((hotel, index) => (
-            <View key={hotel.id} style={styles.quickCompareCard}>
+            <Animated.View 
+              key={hotel.id} 
+              style={styles.quickCompareCard}
+              entering={SlideInRight.delay(400 + index * 150)}
+            >
               <Text style={styles.pickLabel}># {index + 1} Pick</Text>
               <Text style={styles.hotelName}>{hotel.name}</Text>
               <View style={styles.ratingRow}>
@@ -101,52 +218,33 @@ export default function ComparisonScreen() {
                 <Text style={styles.ratingText}>{hotel.rating}</Text>
                 <Text style={styles.priceText}>${hotel.price}/night</Text>
               </View>
-            </View>
+            </Animated.View>
           ))}
         </View>
-      </View>
+      </Animated.View>
 
-      <View style={styles.sectionContainer}>
+      <Animated.View 
+        style={styles.sectionContainer}
+        entering={FadeInUp.delay(500).springify()}
+      >
         <Text style={styles.sectionTitle}>OVERALL SCORE COMPARISON</Text>
         <Text style={styles.sectionSubtitle}>
           Higher score indicates better overall performance
         </Text>
         <View style={styles.chartContainer}>
-          {hotels.map((hotel) => (
-            <View key={hotel.id} style={styles.barContainer}>
-              <View
-                style={[
-                  styles.bar,
-                  {
-                    height: hotel.score * 1.8,
-                    backgroundColor: '#10B981',
-                  },
-                ]}
-              />
-              <Text style={styles.barLabel} numberOfLines={1}>
-                {hotel.name.split(' ')[0]}...
-              </Text>
-            </View>
+          {hotels.map((hotel, index) => (
+            <AnimatedBar key={hotel.id} hotel={hotel} index={index} />
           ))}
         </View>
-      </View>
+      </Animated.View>
 
-      <View style={styles.sectionContainer}>
+      <Animated.View 
+        style={styles.sectionContainer}
+        entering={FadeInUp.delay(700).springify()}
+      >
         <Text style={styles.sectionTitle}>SENTIMENT DISTRIBUTION</Text>
-        {hotels.map((hotel) => (
-          <View key={hotel.id} style={styles.sentimentRow}>
-            <View style={styles.sentimentHeader}>
-              <Text style={styles.sentimentHotel}>{hotel.name}</Text>
-              <Text style={styles.sentimentReviews}>
-                {(Math.random() * 2 + 1).toFixed(1)}k reviews
-              </Text>
-            </View>
-            <View style={styles.sentimentBar}>
-              <View style={[styles.sentimentSegment, { flex: 7, backgroundColor: '#10B981' }]} />
-              <View style={[styles.sentimentSegment, { flex: 2, backgroundColor: '#9CA3AF' }]} />
-              <View style={[styles.sentimentSegment, { flex: 1, backgroundColor: '#EF4444' }]} />
-            </View>
-          </View>
+        {hotels.map((hotel, index) => (
+          <AnimatedSentimentBar key={hotel.id} hotel={hotel} index={index} />
         ))}
         <View style={styles.legendRow}>
           <View style={styles.legendItem}>
@@ -162,12 +260,16 @@ export default function ComparisonScreen() {
             <Text style={styles.legendText}>Negative</Text>
           </View>
         </View>
-      </View>
+      </Animated.View>
     </>
   );
 
   const renderScoresTab = () => (
-    <View style={styles.sectionContainer}>
+    <Animated.View 
+      style={styles.sectionContainer}
+      entering={FadeIn.duration(300)}
+      layout={Layout}
+    >
       <Text style={styles.sectionTitle}>DETAILED SCORE BREAKDOWN</Text>
       <Text style={styles.sectionSubtitle}>Tap any score to see details</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -182,13 +284,21 @@ export default function ComparisonScreen() {
               </View>
             ))}
           </View>
-          {scoreData.map((row) => (
-            <View key={row.hotel} style={styles.scoreRow}>
+          {scoreData.map((row, rowIndex) => (
+            <Animated.View 
+              key={row.hotel} 
+              style={styles.scoreRow}
+              entering={SlideInRight.delay(rowIndex * 100)}
+            >
               <View style={styles.scoreNameCell}>
                 <Text style={styles.scoreHotelName}>{row.hotel}</Text>
               </View>
               {row.scores.map((score, index) => (
-                <View key={index} style={styles.scoreCell}>
+                <Animated.View 
+                  key={index} 
+                  style={styles.scoreCell}
+                  entering={ZoomIn.delay(rowIndex * 100 + index * 50)}
+                >
                   <View
                     style={[
                       styles.scoreBadge,
@@ -199,9 +309,9 @@ export default function ComparisonScreen() {
                       {score}
                     </Text>
                   </View>
-                </View>
+                </Animated.View>
               ))}
-            </View>
+            </Animated.View>
           ))}
         </View>
       </ScrollView>
@@ -219,48 +329,68 @@ export default function ComparisonScreen() {
           <Text style={styles.legendText}>Average (7-8)</Text>
         </View>
       </View>
-    </View>
+    </Animated.View>
   );
 
   const renderPricesTab = () => (
-    <View style={styles.sectionContainer}>
+    <Animated.View 
+      style={styles.sectionContainer}
+      entering={FadeIn.duration(300)}
+      layout={Layout}
+    >
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.platformFilter}
       >
         {['All Platforms', 'Agoda', 'MakeMyTrip', 'Booking.com', 'Expedia'].map(
-          (platform) => (
-            <TouchableOpacity
+          (platform, index) => (
+            <Animated.View
               key={platform}
-              style={[
-                styles.platformButton,
-                selectedPlatform === platform && styles.platformButtonActive,
-              ]}
-              onPress={() => setSelectedPlatform(platform)}
+              entering={SlideInRight.delay(index * 80)}
             >
-              <Text
+              <TouchableOpacity
                 style={[
-                  styles.platformText,
-                  selectedPlatform === platform && styles.platformTextActive,
+                  styles.platformButton,
+                  selectedPlatform === platform && styles.platformButtonActive,
                 ]}
+                onPress={() => setSelectedPlatform(platform)}
               >
-                {platform}
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  style={[
+                    styles.platformText,
+                    selectedPlatform === platform && styles.platformTextActive,
+                  ]}
+                >
+                  {platform}
+                </Text>
+              </TouchableOpacity>
+            </Animated.View>
           )
         )}
       </ScrollView>
 
-      {priceData.map((hotel) => (
-        <View key={hotel.hotel} style={styles.priceCard}>
+      {priceData.map((hotel, hotelIndex) => (
+        <Animated.View 
+          key={hotel.hotel} 
+          style={styles.priceCard}
+          entering={FadeInUp.delay(200 + hotelIndex * 150)}
+        >
           <Text style={styles.priceHotelName}>{hotel.hotel}</Text>
           <View style={styles.priceGrid}>
-            {hotel.prices.map((item) => (
-              <View key={item.platform} style={styles.priceItem}>
+            {hotel.prices.map((item, priceIndex) => (
+              <Animated.View 
+                key={item.platform} 
+                style={styles.priceItem}
+                entering={ZoomIn.delay(300 + hotelIndex * 150 + priceIndex * 80)}
+              >
                 <Text style={styles.pricePlatform}>{item.platform}</Text>
                 <Text style={styles.priceValue}>${item.price}</Text>
-                <TouchableOpacity style={styles.bookButton}>
+                <AnimatedTouchable 
+                  style={[styles.bookButton, bookButtonStyle]} 
+                  onPress={handleBookPress}
+                  activeOpacity={0.9}
+                >
                   <LinearGradient
                     colors={['#11998e', '#38ef7d']}
                     style={styles.bookGradient}
@@ -270,13 +400,13 @@ export default function ComparisonScreen() {
                     <Text style={styles.bookText}>Book</Text>
                     <Ionicons name="open-outline" size={14} color="#fff" />
                   </LinearGradient>
-                </TouchableOpacity>
-              </View>
+                </AnimatedTouchable>
+              </Animated.View>
             ))}
           </View>
-        </View>
+        </Animated.View>
       ))}
-    </View>
+    </Animated.View>
   );
 
   return (
@@ -287,7 +417,10 @@ export default function ComparisonScreen() {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-        <View style={styles.header}>
+        <Animated.View 
+          style={styles.header}
+          entering={FadeInDown.springify()}
+        >
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}
@@ -298,17 +431,18 @@ export default function ComparisonScreen() {
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Hotel Comparison</Text>
           <View style={{ width: 45 }} />
-        </View>
+        </Animated.View>
       </LinearGradient>
 
-      <View style={styles.tabContainer}>
+      <Animated.View 
+        style={styles.tabContainer}
+        entering={FadeInUp.delay(200).springify()}
+      >
+        <Animated.View style={[styles.tabIndicator, tabIndicatorStyle]} />
         {tabs.map((tab, index) => (
           <TouchableOpacity
             key={tab}
-            style={[
-              styles.tabButton,
-              activeTab === index && styles.tabButtonActive,
-            ]}
+            style={styles.tabButton}
             onPress={() => setActiveTab(index)}
           >
             <Text
@@ -321,7 +455,7 @@ export default function ComparisonScreen() {
             </Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </Animated.View>
 
       <ScrollView
         style={styles.scrollView}
@@ -379,15 +513,23 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 5,
+    position: 'relative',
+  },
+  tabIndicator: {
+    position: 'absolute',
+    left: 5,
+    top: 5,
+    bottom: 5,
+    width: (width - 50) / 3,
+    backgroundColor: '#10B981',
+    borderRadius: 12,
   },
   tabButton: {
     flex: 1,
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: 'center',
-  },
-  tabButtonActive: {
-    backgroundColor: '#10B981',
+    zIndex: 1,
   },
   tabText: {
     fontSize: 14,
@@ -537,6 +679,7 @@ const styles = StyleSheet.create({
     width: 30,
     borderRadius: 5,
     marginBottom: 10,
+    backgroundColor: '#10B981',
   },
   barLabel: {
     fontSize: 10,

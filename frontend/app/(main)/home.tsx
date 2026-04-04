@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,8 +13,23 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  withDelay,
+  withSequence,
+  withRepeat,
+  Easing,
+  FadeInDown,
+  FadeInUp,
+  SlideInRight,
+  ZoomIn,
+} from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 const travelTypes = [
   { id: 'business', label: 'Business', icon: 'briefcase' },
@@ -30,8 +45,57 @@ export default function HomeScreen() {
   const [checkOut] = useState('2026-07-18');
   const insets = useSafeAreaInsets();
 
+  const buttonScale = useSharedValue(1);
+  const pinBounce = useSharedValue(0);
+  const buildingHeights = [
+    useSharedValue(0),
+    useSharedValue(0),
+    useSharedValue(0),
+    useSharedValue(0),
+    useSharedValue(0),
+  ];
+
+  useEffect(() => {
+    // Pin bounce animation
+    pinBounce.value = withRepeat(
+      withSequence(
+        withTiming(-10, { duration: 500, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0, { duration: 500, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      true
+    );
+
+    // Animate buildings
+    buildingHeights.forEach((height, index) => {
+      const randomHeight = 30 + Math.random() * 40;
+      height.value = withDelay(
+        index * 100,
+        withSpring(randomHeight, { damping: 10 })
+      );
+    });
+  }, []);
+
+  const pinAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: pinBounce.value }],
+  }));
+
   const handleSearch = () => {
-    router.push('/(main)/comparison');
+    buttonScale.value = withSequence(
+      withTiming(0.95, { duration: 100 }),
+      withSpring(1)
+    );
+    setTimeout(() => {
+      router.push('/(main)/comparison');
+    }, 200);
+  };
+
+  const buttonAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScale.value }],
+  }));
+
+  const handleTravelTypePress = (typeId: string) => {
+    setSelectedTravelType(typeId);
   };
 
   return (
@@ -43,7 +107,10 @@ export default function HomeScreen() {
         end={{ x: 1, y: 1 }}
       >
         <View style={[styles.headerContent, { paddingTop: insets.top + 10 }]}>
-          <View style={styles.headerTop}>
+          <Animated.View 
+            style={styles.headerTop}
+            entering={FadeInDown.delay(200).springify()}
+          >
             <TouchableOpacity style={styles.menuButton}>
               <Ionicons name="menu" size={24} color="#fff" />
             </TouchableOpacity>
@@ -51,23 +118,26 @@ export default function HomeScreen() {
             <TouchableOpacity style={styles.profileButton}>
               <Ionicons name="person-circle-outline" size={28} color="#fff" />
             </TouchableOpacity>
-          </View>
+          </Animated.View>
 
           <View style={styles.cityIllustration}>
             <View style={styles.buildingGroup}>
-              {[1, 2, 3, 4, 5].map((_, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.building,
-                    { height: 30 + Math.random() * 40, width: 20 + Math.random() * 15 },
-                  ]}
-                />
-              ))}
+              {buildingHeights.map((height, index) => {
+                const buildingStyle = useAnimatedStyle(() => ({
+                  height: height.value,
+                  width: 20 + index * 3,
+                }));
+                return (
+                  <Animated.View
+                    key={index}
+                    style={[styles.building, buildingStyle]}
+                  />
+                );
+              })}
             </View>
-            <View style={styles.pinContainer}>
+            <Animated.View style={[styles.pinContainer, pinAnimatedStyle]}>
               <Ionicons name="location" size={40} color="#FFD700" />
-            </View>
+            </Animated.View>
           </View>
         </View>
       </LinearGradient>
@@ -77,7 +147,10 @@ export default function HomeScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.searchCard}>
+        <Animated.View 
+          style={styles.searchCard}
+          entering={FadeInUp.delay(300).springify()}
+        >
           <BlurView intensity={80} style={styles.cardBlur} tint="light">
             <View style={styles.cardContent}>
               <TouchableOpacity
@@ -131,37 +204,44 @@ export default function HomeScreen() {
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles.travelTypeGrid}
                 >
-                  {travelTypes.map((type) => (
-                    <TouchableOpacity
-                      key={type.id}
-                      style={[
-                        styles.travelTypeButton,
-                        selectedTravelType === type.id && styles.travelTypeButtonActive,
-                      ]}
-                      onPress={() => setSelectedTravelType(type.id)}
-                    >
-                      <View
-                        style={[
-                          styles.travelTypeIcon,
-                          selectedTravelType === type.id && styles.travelTypeIconActive,
-                        ]}
+                  {travelTypes.map((type, index) => {
+                    const isSelected = selectedTravelType === type.id;
+                    return (
+                      <Animated.View
+                        key={type.id}
+                        entering={ZoomIn.delay(400 + index * 100).springify()}
                       >
-                        <Ionicons
-                          name={type.icon as any}
-                          size={24}
-                          color={selectedTravelType === type.id ? '#fff' : '#11998e'}
-                        />
-                      </View>
-                      <Text
-                        style={[
-                          styles.travelTypeText,
-                          selectedTravelType === type.id && styles.travelTypeTextActive,
-                        ]}
-                      >
-                        {type.label}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
+                        <TouchableOpacity
+                          style={[
+                            styles.travelTypeButton,
+                            isSelected && styles.travelTypeButtonActive,
+                          ]}
+                          onPress={() => handleTravelTypePress(type.id)}
+                        >
+                          <View
+                            style={[
+                              styles.travelTypeIcon,
+                              isSelected && styles.travelTypeIconActive,
+                            ]}
+                          >
+                            <Ionicons
+                              name={type.icon as any}
+                              size={24}
+                              color={isSelected ? '#fff' : '#11998e'}
+                            />
+                          </View>
+                          <Text
+                            style={[
+                              styles.travelTypeText,
+                              isSelected && styles.travelTypeTextActive,
+                            ]}
+                          >
+                            {type.label}
+                          </Text>
+                        </TouchableOpacity>
+                      </Animated.View>
+                    );
+                  })}
                 </ScrollView>
               </View>
 
@@ -178,7 +258,11 @@ export default function HomeScreen() {
                 />
               </View>
 
-              <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+              <AnimatedTouchable 
+                style={[styles.searchButton, buttonAnimatedStyle]} 
+                onPress={handleSearch}
+                activeOpacity={0.9}
+              >
                 <LinearGradient
                   colors={['#11998e', '#38ef7d']}
                   style={styles.searchGradient}
@@ -188,10 +272,10 @@ export default function HomeScreen() {
                   <Ionicons name="search" size={20} color="#fff" />
                   <Text style={styles.searchButtonText}>Search Hotels</Text>
                 </LinearGradient>
-              </TouchableOpacity>
+              </AnimatedTouchable>
             </View>
           </BlurView>
-        </View>
+        </Animated.View>
 
         <View style={[styles.bottomPadding, { paddingBottom: insets.bottom + 20 }]} />
       </ScrollView>

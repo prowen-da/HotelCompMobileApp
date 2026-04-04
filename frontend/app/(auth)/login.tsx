@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,16 +14,62 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSpring,
+  withDelay,
+  withSequence,
+  FadeInDown,
+  FadeInLeft,
+  FadeInUp,
+  SlideInLeft,
+} from 'react-native-reanimated';
+
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
   const insets = useSafeAreaInsets();
 
+  const buttonScale = useSharedValue(1);
+  const socialScale1 = useSharedValue(0);
+  const socialScale2 = useSharedValue(0);
+  const socialScale3 = useSharedValue(0);
+
+  useEffect(() => {
+    socialScale1.value = withDelay(800, withSpring(1, { damping: 12 }));
+    socialScale2.value = withDelay(900, withSpring(1, { damping: 12 }));
+    socialScale3.value = withDelay(1000, withSpring(1, { damping: 12 }));
+  }, []);
+
   const handleLogin = () => {
-    router.replace('/(main)/home');
+    buttonScale.value = withSequence(
+      withTiming(0.95, { duration: 100 }),
+      withSpring(1)
+    );
+    setTimeout(() => {
+      router.replace('/(main)/home');
+    }, 200);
   };
+
+  const buttonAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScale.value }],
+  }));
+
+  const social1Style = useAnimatedStyle(() => ({
+    transform: [{ scale: socialScale1.value }],
+  }));
+  const social2Style = useAnimatedStyle(() => ({
+    transform: [{ scale: socialScale2.value }],
+  }));
+  const social3Style = useAnimatedStyle(() => ({
+    transform: [{ scale: socialScale3.value }],
+  }));
 
   return (
     <LinearGradient
@@ -43,29 +89,42 @@ export default function LoginScreen() {
           ]}
           showsVerticalScrollIndicator={false}
         >
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <BlurView intensity={30} style={styles.backButtonBlur}>
-              <Ionicons name="arrow-back" size={24} color="#fff" />
-            </BlurView>
-          </TouchableOpacity>
+          <Animated.View entering={SlideInLeft.springify()}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.back()}
+            >
+              <BlurView intensity={30} style={styles.backButtonBlur}>
+                <Ionicons name="arrow-back" size={24} color="#fff" />
+              </BlurView>
+            </TouchableOpacity>
+          </Animated.View>
 
-          <View style={styles.headerContainer}>
+          <Animated.View 
+            style={styles.headerContainer}
+            entering={FadeInDown.delay(200).springify()}
+          >
             <Text style={styles.title}>Let's Sign you in</Text>
             <Text style={styles.subtitle}>
               Sign in to access your account and continue where you left off.
             </Text>
-          </View>
+          </Animated.View>
 
-          <View style={styles.formContainer}>
+          <Animated.View 
+            style={styles.formContainer}
+            entering={FadeInUp.delay(400).springify()}
+          >
             <BlurView intensity={20} style={styles.formBlur}>
               <View style={styles.formContent}>
                 <View style={styles.inputGroup}>
                   <Text style={styles.label}>Email Address</Text>
-                  <View style={styles.inputContainer}>
-                    <Ionicons name="mail-outline" size={20} color="rgba(255,255,255,0.7)" />
+                  <Animated.View 
+                    style={[
+                      styles.inputContainer,
+                      focusedField === 'email' && styles.inputFocused,
+                    ]}
+                  >
+                    <Ionicons name="mail-outline" size={20} color={focusedField === 'email' ? '#fff' : 'rgba(255,255,255,0.7)'} />
                     <TextInput
                       style={styles.input}
                       placeholder="Enter your email address"
@@ -74,14 +133,21 @@ export default function LoginScreen() {
                       onChangeText={setEmail}
                       keyboardType="email-address"
                       autoCapitalize="none"
+                      onFocus={() => setFocusedField('email')}
+                      onBlur={() => setFocusedField(null)}
                     />
-                  </View>
+                  </Animated.View>
                 </View>
 
                 <View style={styles.inputGroup}>
                   <Text style={styles.label}>Password</Text>
-                  <View style={styles.inputContainer}>
-                    <Ionicons name="lock-closed-outline" size={20} color="rgba(255,255,255,0.7)" />
+                  <Animated.View 
+                    style={[
+                      styles.inputContainer,
+                      focusedField === 'password' && styles.inputFocused,
+                    ]}
+                  >
+                    <Ionicons name="lock-closed-outline" size={20} color={focusedField === 'password' ? '#fff' : 'rgba(255,255,255,0.7)'} />
                     <TextInput
                       style={styles.input}
                       placeholder="Enter your password"
@@ -89,6 +155,8 @@ export default function LoginScreen() {
                       value={password}
                       onChangeText={setPassword}
                       secureTextEntry={!showPassword}
+                      onFocus={() => setFocusedField('password')}
+                      onBlur={() => setFocusedField(null)}
                     />
                     <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                       <Ionicons
@@ -97,7 +165,7 @@ export default function LoginScreen() {
                         color="rgba(255,255,255,0.7)"
                       />
                     </TouchableOpacity>
-                  </View>
+                  </Animated.View>
                 </View>
 
                 <TouchableOpacity
@@ -107,14 +175,18 @@ export default function LoginScreen() {
                   <Text style={styles.forgotText}>Forgot Password?</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.signInButton} onPress={handleLogin}>
+                <AnimatedTouchable 
+                  style={[styles.signInButton, buttonAnimatedStyle]} 
+                  onPress={handleLogin}
+                  activeOpacity={0.9}
+                >
                   <LinearGradient
                     colors={['rgba(255,255,255,0.9)', 'rgba(255,255,255,0.95)']}
                     style={styles.signInGradient}
                   >
                     <Text style={styles.signInText}>Sign In</Text>
                   </LinearGradient>
-                </TouchableOpacity>
+                </AnimatedTouchable>
 
                 <View style={styles.signUpContainer}>
                   <Text style={styles.signUpText}>Don't have an account? </Text>
@@ -130,24 +202,27 @@ export default function LoginScreen() {
                 </View>
 
                 <View style={styles.socialContainer}>
-                  <TouchableOpacity style={styles.socialButton}>
+                  <AnimatedTouchable style={[styles.socialButton, social1Style]}>
                     <Ionicons name="logo-google" size={24} color="#fff" />
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.socialButton}>
+                  </AnimatedTouchable>
+                  <AnimatedTouchable style={[styles.socialButton, social2Style]}>
                     <Ionicons name="logo-apple" size={24} color="#fff" />
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.socialButton}>
+                  </AnimatedTouchable>
+                  <AnimatedTouchable style={[styles.socialButton, social3Style]}>
                     <Ionicons name="logo-facebook" size={24} color="#fff" />
-                  </TouchableOpacity>
+                  </AnimatedTouchable>
                 </View>
               </View>
             </BlurView>
-          </View>
+          </Animated.View>
 
-          <Text style={styles.termsText}>
+          <Animated.Text 
+            style={styles.termsText}
+            entering={FadeInUp.delay(700)}
+          >
             By signing in you agree to our{' '}
             <Text style={styles.termsLink}>Terms and Conditions of Use</Text>
-          </Text>
+          </Animated.Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </LinearGradient>
@@ -223,6 +298,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  inputFocused: {
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
   },
   input: {
     flex: 1,
