@@ -28,6 +28,18 @@ import Animated, {
 const { width } = Dimensions.get('window');
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
+// Unique color gradients for each hotel
+const hotelColors = [
+  { gradient: ['#667eea', '#764ba2'], accent: '#667eea' },  // Purple/Indigo
+  { gradient: ['#11998e', '#38ef7d'], accent: '#11998e' },  // Teal/Green
+  { gradient: ['#fc4a1a', '#f7b733'], accent: '#fc4a1a' },  // Orange/Yellow
+  { gradient: ['#ee0979', '#ff6a00'], accent: '#ee0979' },  // Pink/Orange
+  { gradient: ['#4776E6', '#8E54E9'], accent: '#4776E6' },  // Blue/Purple
+  { gradient: ['#00c6ff', '#0072ff'], accent: '#0072ff' },  // Cyan/Blue
+  { gradient: ['#f953c6', '#b91d73'], accent: '#b91d73' },  // Magenta/Pink
+  { gradient: ['#1D976C', '#93F9B9'], accent: '#1D976C' },  // Green/Mint
+];
+
 const hotels = [
   {
     id: 1,
@@ -38,6 +50,7 @@ const hotels = [
     reviews: 2340,
     amenities: ['wifi', 'restaurant', 'fitness-center', 'car'],
     image: 'hotel1',
+    colorIndex: 0,
   },
   {
     id: 2,
@@ -48,6 +61,7 @@ const hotels = [
     reviews: 1856,
     amenities: ['wifi', 'restaurant', 'cafe'],
     image: 'hotel2',
+    colorIndex: 1,
   },
   {
     id: 3,
@@ -58,6 +72,7 @@ const hotels = [
     reviews: 3210,
     amenities: ['wifi', 'restaurant', 'fitness-center'],
     image: 'hotel3',
+    colorIndex: 2,
   },
   {
     id: 4,
@@ -68,6 +83,7 @@ const hotels = [
     reviews: 4521,
     amenities: ['wifi', 'restaurant', 'fitness-center', 'car', 'cafe'],
     image: 'hotel4',
+    colorIndex: 3,
   },
   {
     id: 5,
@@ -78,6 +94,7 @@ const hotels = [
     reviews: 1245,
     amenities: ['wifi', 'cafe'],
     image: 'hotel5',
+    colorIndex: 4,
   },
 ];
 
@@ -133,10 +150,7 @@ const HotelCard = ({ hotel, index }: { hotel: typeof hotels[0]; index: number })
       >
         <View style={styles.cardImageContainer}>
           <LinearGradient
-            colors={[
-              index % 2 === 0 ? '#667eea' : '#11998e',
-              index % 2 === 0 ? '#764ba2' : '#38ef7d',
-            ]}
+            colors={hotelColors[hotel.colorIndex % hotelColors.length].gradient}
             style={StyleSheet.absoluteFill}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -172,12 +186,12 @@ const HotelCard = ({ hotel, index }: { hotel: typeof hotels[0]; index: number })
               <Animated.View
                 key={amenity}
                 entering={ZoomIn.delay(index * 100 + i * 50)}
-                style={styles.amenityIcon}
+                style={[styles.amenityIcon, { backgroundColor: hotelColors[hotel.colorIndex % hotelColors.length].accent + '15' }]}
               >
                 <Ionicons
                   name={amenityIcons[amenity] as any}
                   size={14}
-                  color="#11998e"
+                  color={hotelColors[hotel.colorIndex % hotelColors.length].accent}
                 />
               </Animated.View>
             ))}
@@ -193,7 +207,7 @@ const HotelCard = ({ hotel, index }: { hotel: typeof hotels[0]; index: number })
               <Text style={styles.reviewsText}>{hotel.reviews.toLocaleString()} reviews</Text>
             </View>
             <View style={styles.priceContainer}>
-              <Text style={styles.priceValue}>${hotel.price}</Text>
+              <Text style={[styles.priceValue, { color: hotelColors[hotel.colorIndex % hotelColors.length].accent }]}>${hotel.price}</Text>
               <Text style={styles.priceNight}>/night</Text>
             </View>
           </View>
