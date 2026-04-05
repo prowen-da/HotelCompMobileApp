@@ -7,7 +7,7 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,62 +25,12 @@ import Animated, {
   ZoomIn,
 } from 'react-native-reanimated';
 
+import { getHotelsByIds, hotels as allHotels, featureLabels } from '../../src/data/hotels';
+
 const { width } = Dimensions.get('window');
 
-const hotelsToCompare = [
-  {
-    id: 1,
-    name: 'The Grand Palace',
-    color: '#667eea',
-    gradient: ['#667eea', '#764ba2'],
-    price: 145,
-    rating: 4.6,
-    reviews: 2340,
-    amenityScores: { cleanliness: 9.1, service: 9.0, location: 9.5, value: 8.5, comfort: 9.2 },
-    features: { wifi: true, pool: true, gym: true, spa: true, parking: true, restaurant: true, petFriendly: false, bar: true, roomService: true, laundry: true },
-    tripMatch: { family: 72, business: 95, friends: 80, solo: 88, pets: 20 },
-    lowestPrices: [{ platform: 'Agoda', price: 145 }, { platform: 'Booking.com', price: 150 }, { platform: 'Expedia', price: 152 }, { platform: 'MakeMyTrip', price: 155 }],
-  },
-  {
-    id: 2,
-    name: 'Lakeview Resort',
-    color: '#11998e',
-    gradient: ['#11998e', '#38ef7d'],
-    price: 95,
-    rating: 4.5,
-    reviews: 1856,
-    amenityScores: { cleanliness: 7.8, service: 8.0, location: 7.5, value: 9.2, comfort: 7.9 },
-    features: { wifi: true, pool: true, gym: false, spa: false, parking: true, restaurant: true, petFriendly: true, bar: false, roomService: false, laundry: true },
-    tripMatch: { family: 90, business: 55, friends: 85, solo: 70, pets: 95 },
-    lowestPrices: [{ platform: 'Agoda', price: 95 }, { platform: 'Booking.com', price: 102 }, { platform: 'Expedia', price: 98 }, { platform: 'MakeMyTrip', price: 110 }],
-  },
-  {
-    id: 3,
-    name: 'Urban Nest Suites',
-    color: '#ee0979',
-    gradient: ['#ee0979', '#ff6a00'],
-    price: 120,
-    rating: 4.2,
-    reviews: 3210,
-    amenityScores: { cleanliness: 8.4, service: 7.5, location: 8.8, value: 8.0, comfort: 8.0 },
-    features: { wifi: true, pool: false, gym: true, spa: false, parking: false, restaurant: true, petFriendly: true, bar: true, roomService: true, laundry: false },
-    tripMatch: { family: 60, business: 82, friends: 90, solo: 92, pets: 85 },
-    lowestPrices: [{ platform: 'Agoda', price: 118 }, { platform: 'Booking.com', price: 120 }, { platform: 'Expedia', price: 125 }, { platform: 'MakeMyTrip', price: 130 }],
-  },
-];
-
-const featureLabels: { [key: string]: { label: string; icon: string } } = {
-  wifi: { label: 'Free WiFi', icon: 'wifi' },
-  pool: { label: 'Pool', icon: 'water' },
-  gym: { label: 'Gym', icon: 'fitness' },
-  spa: { label: 'Spa', icon: 'leaf' },
-  parking: { label: 'Parking', icon: 'car' },
-  restaurant: { label: 'Restaurant', icon: 'restaurant' },
-  petFriendly: { label: 'Pet Friendly', icon: 'paw' },
-  bar: { label: 'Bar', icon: 'wine' },
-  roomService: { label: 'Room Service', icon: 'bed' },
-  laundry: { label: 'Laundry', icon: 'shirt' },
-};
+// Default hotel IDs if none selected
+const defaultIds = [1, 2, 3];
 
 const amenityLabels = ['Cleanliness', 'Service', 'Location', 'Value', 'Comfort'];
 const amenityKeys = ['cleanliness', 'service', 'location', 'value', 'comfort'] as const;
@@ -106,8 +56,16 @@ const hbarStyles = StyleSheet.create({
 
 export default function ComparisonDetailScreen() {
   const insets = useSafeAreaInsets();
+  const { ids } = useLocalSearchParams<{ ids?: string }>();
   const [activeSection, setActiveSection] = useState(0);
   const sections = ['Ratings', 'Prices', 'Features', 'Trip Match'];
+
+  // Parse IDs from route params or use defaults
+  const selectedIds = ids
+    ? ids.split(',').map(Number).filter(Boolean)
+    : defaultIds;
+
+  const hotelsToCompare = getHotelsByIds(selectedIds);
 
   return (
     <View style={styles.container}>
@@ -135,8 +93,8 @@ export default function ComparisonDetailScreen() {
         {/* Hotel pills */}
         <Animated.View entering={FadeInUp.delay(200)} style={styles.hotelPills}>
           {hotelsToCompare.map((h, i) => (
-            <Animated.View key={h.id} entering={ZoomIn.delay(300 + i * 100)} style={[styles.pill, { borderColor: h.color }]}>
-              <View style={[styles.pillDot, { backgroundColor: h.color }]} />
+            <Animated.View key={h.id} entering={ZoomIn.delay(300 + i * 100)} style={[styles.pill, { borderColor: h.accent }]}>
+              <View style={[styles.pillDot, { backgroundColor: h.accent }]} />
               <Text style={styles.pillText}>{h.name}</Text>
             </Animated.View>
           ))}
@@ -175,14 +133,14 @@ export default function ComparisonDetailScreen() {
                 <Text style={styles.ratingLabel}>{amenityLabels[aIdx]}</Text>
                 {hotelsToCompare.map((h, hIdx) => (
                   <View key={h.id} style={styles.ratingBarRow}>
-                    <View style={[styles.ratingDot, { backgroundColor: h.color }]} />
+                    <View style={[styles.ratingDot, { backgroundColor: h.accent }]} />
                     <AnimatedHBar
                       value={h.amenityScores[key]}
                       maxValue={10}
-                      color={h.color}
+                      color={h.accent}
                       delay={aIdx * 80 + hIdx * 60}
                     />
-                    <Text style={[styles.ratingScore, { color: h.color }]}>
+                    <Text style={[styles.ratingScore, { color: h.accent }]}>
                       {h.amenityScores[key].toFixed(1)}
                     </Text>
                   </View>
@@ -198,8 +156,8 @@ export default function ComparisonDetailScreen() {
                   const avg = Object.values(h.amenityScores).reduce((a, b) => a + b, 0) / Object.values(h.amenityScores).length;
                   return (
                     <View key={h.id} style={styles.overallItem}>
-                      <View style={[styles.overallCircle, { borderColor: h.color }]}>
-                        <Text style={[styles.overallScore, { color: h.color }]}>{avg.toFixed(1)}</Text>
+                      <View style={[styles.overallCircle, { borderColor: h.accent }]}>
+                        <Text style={[styles.overallScore, { color: h.accent }]}>{avg.toFixed(1)}</Text>
                       </View>
                       <Text style={styles.overallName} numberOfLines={1}>{h.name}</Text>
                       <View style={styles.starRow}>
@@ -222,18 +180,18 @@ export default function ComparisonDetailScreen() {
               <Text style={styles.cardTitle}>Lowest Room Price</Text>
               <Text style={styles.cardSub}>Comparing across all platforms</Text>
               {hotelsToCompare.map((h, hIdx) => {
-                const lowest = Math.min(...h.lowestPrices.map(p => p.price));
+                const lowest = Math.min(...h.platformPrices.map(p => p.price));
                 const maxPrice = 200;
                 return (
                   <Animated.View key={h.id} entering={SlideInRight.delay(hIdx * 120)} style={styles.priceCompRow}>
                     <View style={styles.priceCompInfo}>
-                      <View style={[styles.ratingDot, { backgroundColor: h.color }]} />
+                      <View style={[styles.ratingDot, { backgroundColor: h.accent }]} />
                       <Text style={styles.priceCompName} numberOfLines={1}>{h.name}</Text>
                     </View>
                     <View style={styles.priceBarWrap}>
-                      <AnimatedHBar value={lowest} maxValue={maxPrice} color={h.color} delay={hIdx * 120} />
+                      <AnimatedHBar value={lowest} maxValue={maxPrice} color={h.accent} delay={hIdx * 120} />
                     </View>
-                    <Text style={[styles.priceCompVal, { color: h.color }]}>${lowest}</Text>
+                    <Text style={[styles.priceCompVal, { color: h.accent }]}>${lowest}</Text>
                   </Animated.View>
                 );
               })}
@@ -243,25 +201,25 @@ export default function ComparisonDetailScreen() {
             {hotelsToCompare.map((h, hIdx) => (
               <Animated.View key={h.id} entering={FadeInUp.delay(300 + hIdx * 150)} style={styles.card}>
                 <View style={styles.platformHeader}>
-                  <View style={[styles.platformDot, { backgroundColor: h.color }]} />
+                  <View style={[styles.platformDot, { backgroundColor: h.accent }]} />
                   <Text style={styles.cardTitle}>{h.name}</Text>
                 </View>
                 <View style={styles.platformGrid}>
-                  {h.lowestPrices.map((p, pIdx) => {
-                    const isLowest = p.price === Math.min(...h.lowestPrices.map(pp => pp.price));
+                  {h.platformPrices.map((p, pIdx) => {
+                    const isLowest = p.price === Math.min(...h.platformPrices.map(pp => pp.price));
                     return (
                       <Animated.View
                         key={p.platform}
                         entering={ZoomIn.delay(400 + hIdx * 150 + pIdx * 80)}
-                        style={[styles.platformCard, isLowest && { borderColor: h.color, borderWidth: 2 }]}
+                        style={[styles.platformCard, isLowest && { borderColor: h.accent, borderWidth: 2 }]}
                       >
                         {isLowest && (
-                          <View style={[styles.lowestBadge, { backgroundColor: h.color }]}>
+                          <View style={[styles.lowestBadge, { backgroundColor: h.accent }]}>
                             <Text style={styles.lowestText}>LOWEST</Text>
                           </View>
                         )}
                         <Text style={styles.platformName}>{p.platform}</Text>
-                        <Text style={[styles.platformPrice, isLowest && { color: h.color }]}>${p.price}</Text>
+                        <Text style={[styles.platformPrice, isLowest && { color: h.accent }]}>${p.price}</Text>
                         <Text style={styles.platformPerNight}>/night</Text>
                       </Animated.View>
                     );
@@ -283,7 +241,7 @@ export default function ComparisonDetailScreen() {
               <View style={styles.featureLabelCol} />
               {hotelsToCompare.map((h) => (
                 <View key={h.id} style={styles.featureHotelCol}>
-                  <View style={[styles.featureHotelDot, { backgroundColor: h.color }]} />
+                  <View style={[styles.featureHotelDot, { backgroundColor: h.accent }]} />
                   <Text style={styles.featureHotelName} numberOfLines={1}>{h.name.split(' ')[0]}</Text>
                 </View>
               ))}
@@ -302,7 +260,7 @@ export default function ComparisonDetailScreen() {
                 {hotelsToCompare.map((h) => (
                   <View key={h.id} style={styles.featureHotelCol}>
                     {(h.features as any)[key] ? (
-                      <Ionicons name="checkmark-circle" size={22} color={h.color} />
+                      <Ionicons name="checkmark-circle" size={22} color={h.accent} />
                     ) : (
                       <Ionicons name="close-circle" size={22} color="#ddd" />
                     )}
@@ -317,7 +275,7 @@ export default function ComparisonDetailScreen() {
                 const count = Object.values(h.features).filter(Boolean).length;
                 return (
                   <View key={h.id} style={styles.featureSummaryItem}>
-                    <Text style={[styles.featureSummaryCount, { color: h.color }]}>{count}/{Object.keys(h.features).length}</Text>
+                    <Text style={[styles.featureSummaryCount, { color: h.accent }]}>{count}/{Object.keys(h.features).length}</Text>
                     <Text style={styles.featureSummaryLabel}>features</Text>
                   </View>
                 );
@@ -349,12 +307,12 @@ export default function ComparisonDetailScreen() {
                     const matchVal = (h.tripMatch as any)[trip.key];
                     return (
                       <View key={h.id} style={styles.tripRow}>
-                        <View style={[styles.ratingDot, { backgroundColor: h.color }]} />
+                        <View style={[styles.ratingDot, { backgroundColor: h.accent }]} />
                         <Text style={styles.tripHotelName} numberOfLines={1}>{h.name}</Text>
                         <View style={styles.tripBarWrap}>
-                          <AnimatedHBar value={matchVal} maxValue={100} color={h.color} delay={tIdx * 100 + hIdx * 60} />
+                          <AnimatedHBar value={matchVal} maxValue={100} color={h.accent} delay={tIdx * 100 + hIdx * 60} />
                         </View>
-                        <Text style={[styles.tripPercent, { color: h.color }]}>{matchVal}%</Text>
+                        <Text style={[styles.tripPercent, { color: h.accent }]}>{matchVal}%</Text>
                       </View>
                     );
                   })}
@@ -367,18 +325,22 @@ export default function ComparisonDetailScreen() {
                 <Ionicons name="trophy" size={22} color="#FFD700" />
                 <Text style={styles.bestForTitle}>Best Match Summary</Text>
                 {[
-                  { trip: 'Family', best: 'Lakeview Resort', score: 90 },
-                  { trip: 'Business', best: 'The Grand Palace', score: 95 },
-                  { trip: 'Friends', best: 'Urban Nest Suites', score: 90 },
-                  { trip: 'Solo', best: 'Urban Nest Suites', score: 92 },
-                  { trip: 'Pets', best: 'Lakeview Resort', score: 95 },
-                ].map((b) => (
-                  <View key={b.trip} style={styles.bestForRow}>
-                    <Text style={styles.bestForTrip}>{b.trip}</Text>
-                    <Text style={styles.bestForHotel}>{b.best}</Text>
-                    <Text style={styles.bestForScore}>{b.score}%</Text>
-                  </View>
-                ))}
+                  { trip: 'Family', key: 'family' },
+                  { trip: 'Business', key: 'business' },
+                  { trip: 'Friends', key: 'friends' },
+                  { trip: 'Solo', key: 'solo' },
+                  { trip: 'Pets', key: 'pets' },
+                ].map((b) => {
+                  const bestHotel = [...hotelsToCompare].sort((a, bb) => (bb.tripMatch as any)[b.key] - (a.tripMatch as any)[b.key])[0];
+                  const bestScore = bestHotel ? (bestHotel.tripMatch as any)[b.key] : 0;
+                  return (
+                    <View key={b.trip} style={styles.bestForRow}>
+                      <Text style={styles.bestForTrip}>{b.trip}</Text>
+                      <Text style={styles.bestForHotel}>{bestHotel?.name || '-'}</Text>
+                      <Text style={styles.bestForScore}>{bestScore}%</Text>
+                    </View>
+                  );
+                })}
               </LinearGradient>
             </Animated.View>
           </View>

@@ -25,221 +25,44 @@ import Animated, {
   ZoomIn,
   Layout,
 } from 'react-native-reanimated';
+import { hotels, categories, categoryColors, Hotel } from '../../src/data/hotels';
 
 const { width } = Dimensions.get('window');
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
-// Category definitions with colors
-const categories = [
-  { id: 'all', name: 'All', gradient: ['#333', '#666'], accent: '#333', icon: 'grid' },
-  { id: 'luxury', name: 'Luxury', gradient: ['#667eea', '#764ba2'], accent: '#667eea', icon: 'diamond' },
-  { id: 'budget', name: 'Budget', gradient: ['#11998e', '#38ef7d'], accent: '#11998e', icon: 'wallet' },
-  { id: 'business', name: 'Business', gradient: ['#2193b0', '#6dd5ed'], accent: '#2193b0', icon: 'briefcase' },
-  { id: 'romantic', name: 'Romantic', gradient: ['#ee0979', '#ff6a00'], accent: '#ee0979', icon: 'heart' },
-  { id: 'family', name: 'Family', gradient: ['#fc4a1a', '#f7b733'], accent: '#fc4a1a', icon: 'people' },
-  { id: 'adventure', name: 'Adventure', gradient: ['#FF416C', '#FF4B2B'], accent: '#FF416C', icon: 'compass' },
-  { id: 'wellness', name: 'Wellness', gradient: ['#1D976C', '#93F9B9'], accent: '#1D976C', icon: 'leaf' },
-];
-
-// Unique color gradients for each hotel (mapped by category)
-const hotelColors: { [key: string]: { gradient: string[], accent: string } } = {
-  luxury: { gradient: ['#667eea', '#764ba2'], accent: '#667eea' },
-  budget: { gradient: ['#11998e', '#38ef7d'], accent: '#11998e' },
-  family: { gradient: ['#fc4a1a', '#f7b733'], accent: '#fc4a1a' },
-  romantic: { gradient: ['#ee0979', '#ff6a00'], accent: '#ee0979' },
-  business: { gradient: ['#2193b0', '#6dd5ed'], accent: '#2193b0' },
-  adventure: { gradient: ['#FF416C', '#FF4B2B'], accent: '#FF416C' },
-  wellness: { gradient: ['#1D976C', '#93F9B9'], accent: '#1D976C' },
+const amenityIcons: { [key: string]: string } = {
+  wifi: 'wifi',
+  restaurant: 'restaurant',
+  'fitness-center': 'fitness',
+  car: 'car',
+  cafe: 'cafe',
 };
 
-const hotels = [
-  {
-    id: 1,
-    name: 'The Grand Palace Hotel',
-    location: 'Downtown, New York',
-    price: 245,
-    rating: 4.9,
-    reviews: 2340,
-    amenities: ['wifi', 'restaurant', 'fitness-center', 'car'],
-    image: 'hotel1',
-    category: 'luxury',
-  },
-  {
-    id: 2,
-    name: 'Budget Inn Express',
-    location: 'Midtown, New York',
-    price: 65,
-    rating: 4.2,
-    reviews: 1856,
-    amenities: ['wifi', 'cafe'],
-    image: 'hotel2',
-    category: 'budget',
-  },
-  {
-    id: 3,
-    name: 'Family Fun Resort',
-    location: 'Central Park, New York',
-    price: 155,
-    rating: 4.5,
-    reviews: 3210,
-    amenities: ['wifi', 'restaurant', 'fitness-center'],
-    image: 'hotel3',
-    category: 'family',
-  },
-  {
-    id: 4,
-    name: 'Royal Romance Suites',
-    location: 'Times Square, New York',
-    price: 195,
-    rating: 4.8,
-    reviews: 4521,
-    amenities: ['wifi', 'restaurant', 'fitness-center', 'car', 'cafe'],
-    image: 'hotel4',
-    category: 'romantic',
-  },
-  {
-    id: 5,
-    name: 'Executive Tower Hotel',
-    location: 'SoHo, New York',
-    price: 185,
-    rating: 4.6,
-    reviews: 1245,
-    amenities: ['wifi', 'cafe', 'restaurant'],
-    image: 'hotel5',
-    category: 'business',
-  },
-  {
-    id: 6,
-    name: 'Adventure Base Camp',
-    location: 'Upper East Side, New York',
-    price: 125,
-    rating: 4.7,
-    reviews: 2890,
-    amenities: ['wifi', 'restaurant', 'fitness-center'],
-    image: 'hotel6',
-    category: 'adventure',
-  },
-  {
-    id: 7,
-    name: 'Serenity Spa Resort',
-    location: 'Chelsea, New York',
-    price: 175,
-    rating: 4.4,
-    reviews: 1678,
-    amenities: ['wifi', 'restaurant', 'cafe', 'fitness-center'],
-    image: 'hotel7',
-    category: 'wellness',
-  },
-  {
-    id: 8,
-    name: 'The Ritz Platinum',
-    location: 'Battery Park, New York',
-    price: 320,
-    rating: 4.9,
-    reviews: 5234,
-    amenities: ['wifi', 'restaurant', 'fitness-center', 'car', 'cafe'],
-    image: 'hotel8',
-    category: 'luxury',
-  },
-  {
-    id: 9,
-    name: 'Thrifty Stay Motel',
-    location: 'Greenwich Village, New York',
-    price: 55,
-    rating: 4.0,
-    reviews: 2156,
-    amenities: ['wifi'],
-    image: 'hotel9',
-    category: 'budget',
-  },
-  {
-    id: 10,
-    name: 'Kids Paradise Hotel',
-    location: 'Upper West Side, New York',
-    price: 145,
-    rating: 4.3,
-    reviews: 1432,
-    amenities: ['wifi', 'cafe', 'restaurant'],
-    image: 'hotel10',
-    category: 'family',
-  },
-  {
-    id: 11,
-    name: 'Corporate Suites NYC',
-    location: 'Financial District, New York',
-    price: 195,
-    rating: 4.6,
-    reviews: 3567,
-    amenities: ['wifi', 'restaurant', 'fitness-center', 'car'],
-    image: 'hotel11',
-    category: 'business',
-  },
-  {
-    id: 12,
-    name: 'Honeymoon Haven',
-    location: 'Tribeca, New York',
-    price: 225,
-    rating: 4.8,
-    reviews: 4123,
-    amenities: ['wifi', 'restaurant', 'fitness-center', 'car', 'cafe'],
-    image: 'hotel12',
-    category: 'romantic',
-  },
-  {
-    id: 13,
-    name: 'Extreme Sports Lodge',
-    location: 'East Village, New York',
-    price: 115,
-    rating: 4.5,
-    reviews: 987,
-    amenities: ['wifi', 'cafe', 'fitness-center'],
-    image: 'hotel13',
-    category: 'adventure',
-  },
-  {
-    id: 14,
-    name: 'Zen Garden Retreat',
-    location: 'Hell\'s Kitchen, New York',
-    price: 165,
-    rating: 4.7,
-    reviews: 2345,
-    amenities: ['wifi', 'restaurant', 'fitness-center'],
-    image: 'hotel14',
-    category: 'wellness',
-  },
-  {
-    id: 15,
-    name: 'Value Stay Plus',
-    location: 'Brooklyn Heights, New York',
-    price: 75,
-    rating: 4.1,
-    reviews: 1876,
-    amenities: ['wifi', 'cafe'],
-    image: 'hotel15',
-    category: 'budget',
-  },
-  {
-    id: 16,
-    name: 'Imperial Luxury Palace',
-    location: 'Williamsburg, New York',
-    price: 285,
-    rating: 4.8,
-    reviews: 1234,
-    amenities: ['wifi', 'restaurant', 'fitness-center', 'car', 'cafe'],
-    image: 'hotel16',
-    category: 'luxury',
-  },
-];
-
-const HotelCard = ({ hotel, index }: { hotel: typeof hotels[0]; index: number }) => {
+const HotelCard = ({
+  hotel,
+  index,
+  compareMode,
+  isSelected,
+  onToggleSelect,
+}: {
+  hotel: Hotel;
+  index: number;
+  compareMode: boolean;
+  isSelected: boolean;
+  onToggleSelect: (id: number) => void;
+}) => {
   const cardScale = useSharedValue(1);
   const heartScale = useSharedValue(1);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  // Get colors based on category
-  const colors = hotelColors[hotel.category] || hotelColors.budget;
+  const colors = categoryColors[hotel.category] || categoryColors.budget;
+  const categoryInfo = categories.find((c) => c.id === hotel.category);
 
   const handlePress = () => {
+    if (compareMode) {
+      onToggleSelect(hotel.id);
+      return;
+    }
     cardScale.value = withSequence(
       withTiming(0.98, { duration: 100 }),
       withSpring(1)
@@ -265,23 +88,14 @@ const HotelCard = ({ hotel, index }: { hotel: typeof hotels[0]; index: number })
     transform: [{ scale: heartScale.value }],
   }));
 
-  const amenityIcons: { [key: string]: string } = {
-    wifi: 'wifi',
-    restaurant: 'restaurant',
-    'fitness-center': 'fitness',
-    car: 'car',
-    cafe: 'cafe',
-  };
-
-  // Get category info for badge
-  const categoryInfo = categories.find(c => c.id === hotel.category);
-
   return (
-    <Animated.View
-      entering={SlideInRight.delay(index * 100).springify()}
-    >
+    <Animated.View entering={SlideInRight.delay(index * 100).springify()} layout={Layout.springify()}>
       <AnimatedTouchable
-        style={[styles.hotelCard, cardStyle]}
+        style={[
+          styles.hotelCard,
+          cardStyle,
+          isSelected && { borderWidth: 2.5, borderColor: colors.accent },
+        ]}
         onPress={handlePress}
         activeOpacity={1}
       >
@@ -295,25 +109,45 @@ const HotelCard = ({ hotel, index }: { hotel: typeof hotels[0]; index: number })
           <View style={styles.imagePlaceholder}>
             <Ionicons name="image" size={40} color="rgba(255,255,255,0.3)" />
           </View>
+
           {/* Category Badge */}
           <View style={styles.categoryBadge}>
             <Ionicons name={categoryInfo?.icon as any || 'pricetag'} size={12} color="#fff" />
             <Text style={styles.categoryBadgeText}>{categoryInfo?.name}</Text>
           </View>
-          <AnimatedTouchable
-            style={[styles.favoriteButton, heartStyle]}
-            onPress={handleFavorite}
-          >
-            <Ionicons
-              name={isFavorite ? 'heart' : 'heart-outline'}
-              size={22}
-              color={isFavorite ? '#ff4757' : '#fff'}
-            />
-          </AnimatedTouchable>
+
+          {/* Compare Selection Checkbox */}
+          {compareMode && (
+            <View style={[styles.selectCircle, isSelected && { backgroundColor: colors.accent, borderColor: colors.accent }]}>
+              {isSelected && <Ionicons name="checkmark" size={16} color="#fff" />}
+            </View>
+          )}
+
+          {/* Favorite button - hidden in compare mode */}
+          {!compareMode && (
+            <AnimatedTouchable
+              style={[styles.favoriteButton, heartStyle]}
+              onPress={handleFavorite}
+            >
+              <Ionicons
+                name={isFavorite ? 'heart' : 'heart-outline'}
+                size={22}
+                color={isFavorite ? '#ff4757' : '#fff'}
+              />
+            </AnimatedTouchable>
+          )}
+
           <View style={styles.ratingBadge}>
             <Ionicons name="star" size={12} color="#FFD700" />
             <Text style={styles.ratingBadgeText}>{hotel.rating}</Text>
           </View>
+
+          {/* Pet badge */}
+          {hotel.petFriendly && (
+            <View style={styles.petIndicator}>
+              <Ionicons name="paw" size={12} color="#fff" />
+            </View>
+          )}
         </View>
 
         <View style={styles.cardContent}>
@@ -361,11 +195,34 @@ const HotelCard = ({ hotel, index }: { hotel: typeof hotels[0]; index: number })
 
 export default function HotelListingScreen() {
   const [activeFilter, setActiveFilter] = useState('all');
+  const [compareMode, setCompareMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const insets = useSafeAreaInsets();
 
   const filteredHotels = activeFilter === 'all'
     ? hotels
     : hotels.filter((h) => h.category === activeFilter);
+
+  const toggleSelect = (id: number) => {
+    setSelectedIds((prev) => {
+      if (prev.includes(id)) return prev.filter((x) => x !== id);
+      if (prev.length >= 3) return prev; // Max 3
+      return [...prev, id];
+    });
+  };
+
+  const exitCompareMode = () => {
+    setCompareMode(false);
+    setSelectedIds([]);
+  };
+
+  const goToCompare = () => {
+    if (selectedIds.length < 2) return;
+    router.push(`/(main)/comparison-detail?ids=${selectedIds.join(',')}`);
+  };
+
+  // Find selected hotel names for the floating bar
+  const selectedHotels = hotels.filter((h) => selectedIds.includes(h.id));
 
   return (
     <View style={styles.container}>
@@ -381,32 +238,51 @@ export default function HotelListingScreen() {
         >
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => router.back()}
+            onPress={() => compareMode ? exitCompareMode() : router.back()}
           >
             <BlurView intensity={30} style={styles.backButtonBlur}>
-              <Ionicons name="arrow-back" size={24} color="#fff" />
+              <Ionicons name={compareMode ? 'close' : 'arrow-back'} size={24} color="#fff" />
             </BlurView>
           </TouchableOpacity>
 
           <View style={styles.headerInfo}>
-            <Text style={styles.headerTitle}>HOTEL BOOKING</Text>
-            <Text style={styles.headerSubtitle}>3 nights (14 Feb - 17 Feb)</Text>
+            <Text style={styles.headerTitle}>{compareMode ? 'SELECT TO COMPARE' : 'HOTEL COMPARE'}</Text>
+            <Text style={styles.headerSubtitle}>
+              {compareMode
+                ? `${selectedIds.length}/3 hotels selected`
+                : `${filteredHotels.length} hotels in New York`}
+            </Text>
           </View>
 
-          <TouchableOpacity style={styles.menuButton}>
-            <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
+          <TouchableOpacity
+            style={[styles.compareToggle, compareMode && styles.compareToggleActive]}
+            onPress={() => compareMode ? exitCompareMode() : setCompareMode(true)}
+          >
+            <Ionicons name="git-compare-outline" size={20} color="#fff" />
           </TouchableOpacity>
         </Animated.View>
 
-        <Animated.View
-          style={styles.resultsInfo}
-          entering={FadeInUp.delay(200).springify()}
-        >
-          <TouchableOpacity style={styles.resultsBack}>
-            <Ionicons name="chevron-back" size={20} color="#fff" />
-          </TouchableOpacity>
-          <Text style={styles.resultsText}>{filteredHotels.length} Hotels available</Text>
-        </Animated.View>
+        {!compareMode && (
+          <Animated.View
+            style={styles.resultsInfo}
+            entering={FadeInUp.delay(200).springify()}
+          >
+            <TouchableOpacity style={styles.resultsBack}>
+              <Ionicons name="chevron-back" size={20} color="#fff" />
+            </TouchableOpacity>
+            <Text style={styles.resultsText}>{filteredHotels.length} Hotels available</Text>
+          </Animated.View>
+        )}
+
+        {compareMode && (
+          <Animated.View
+            entering={FadeInUp.delay(100)}
+            style={styles.compareHint}
+          >
+            <Ionicons name="information-circle" size={16} color="rgba(255,255,255,0.8)" />
+            <Text style={styles.compareHintText}>Tap 2-3 hotels to compare side-by-side</Text>
+          </Animated.View>
+        )}
       </LinearGradient>
 
       {/* Category Filter Pills */}
@@ -466,11 +342,21 @@ export default function HotelListingScreen() {
       {/* Hotel List */}
       <ScrollView
         style={styles.listContainer}
-        contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 20 }]}
+        contentContainerStyle={[
+          styles.listContent,
+          { paddingBottom: insets.bottom + (compareMode && selectedIds.length >= 2 ? 100 : 20) },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {filteredHotels.map((hotel, index) => (
-          <HotelCard key={hotel.id} hotel={hotel} index={index} />
+          <HotelCard
+            key={hotel.id}
+            hotel={hotel}
+            index={index}
+            compareMode={compareMode}
+            isSelected={selectedIds.includes(hotel.id)}
+            onToggleSelect={toggleSelect}
+          />
         ))}
 
         {filteredHotels.length === 0 && (
@@ -481,267 +367,201 @@ export default function HotelListingScreen() {
           </Animated.View>
         )}
       </ScrollView>
+
+      {/* Floating Compare Bar */}
+      {compareMode && selectedIds.length >= 1 && (
+        <Animated.View
+          entering={FadeInUp.springify()}
+          style={[styles.compareBar, { paddingBottom: insets.bottom + 14 }]}
+        >
+          <BlurView intensity={90} tint="light" style={styles.compareBarBlur}>
+            {/* Selected Hotel Dots */}
+            <View style={styles.compareBarLeft}>
+              <View style={styles.selectedDots}>
+                {selectedHotels.map((h) => (
+                  <TouchableOpacity
+                    key={h.id}
+                    style={[styles.selectedDot, { backgroundColor: h.accent }]}
+                    onPress={() => toggleSelect(h.id)}
+                  >
+                    <Text style={styles.selectedDotText}>{h.name.charAt(0)}</Text>
+                  </TouchableOpacity>
+                ))}
+                {Array.from({ length: 3 - selectedIds.length }).map((_, i) => (
+                  <View key={`empty-${i}`} style={styles.emptyDot}>
+                    <Ionicons name="add" size={14} color="#ccc" />
+                  </View>
+                ))}
+              </View>
+              <Text style={styles.compareBarCount}>
+                {selectedIds.length < 2 ? 'Select 1 more' : `${selectedIds.length} ready`}
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              style={[
+                styles.compareBarBtn,
+                selectedIds.length < 2 && styles.compareBarBtnDisabled,
+              ]}
+              onPress={goToCompare}
+              disabled={selectedIds.length < 2}
+            >
+              <LinearGradient
+                colors={selectedIds.length >= 2 ? ['#667eea', '#764ba2'] : ['#ccc', '#ddd']}
+                style={styles.compareBarBtnGrad}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              >
+                <Ionicons name="git-compare-outline" size={18} color="#fff" />
+                <Text style={styles.compareBarBtnText}>Compare</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </BlurView>
+        </Animated.View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  header: {
-    paddingBottom: 20,
-  },
+  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  header: { paddingBottom: 20 },
   headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 15,
-    marginBottom: 15,
+    flexDirection: 'row', alignItems: 'center', paddingHorizontal: 15, marginBottom: 15,
   },
-  backButton: {
-    width: 45,
-    height: 45,
-    borderRadius: 15,
-    overflow: 'hidden',
-  },
+  backButton: { width: 45, height: 45, borderRadius: 15, overflow: 'hidden' },
   backButtonBlur: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    flex: 1, justifyContent: 'center', alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
-  headerInfo: {
-    flex: 1,
-    marginLeft: 15,
+  headerInfo: { flex: 1, marginLeft: 15 },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: '#fff' },
+  headerSubtitle: { fontSize: 14, color: 'rgba(255,255,255,0.8)', marginTop: 2 },
+  compareToggle: {
+    width: 44, height: 44, borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center', alignItems: 'center',
   },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
+  compareToggleActive: { backgroundColor: 'rgba(255,255,255,0.4)' },
+  resultsInfo: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 15 },
+  resultsBack: { marginRight: 10 },
+  resultsText: { fontSize: 16, fontWeight: '600', color: '#fff' },
+  compareHint: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: 15, paddingVertical: 6,
+    backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 10,
+    marginHorizontal: 15, alignSelf: 'flex-start',
   },
-  headerSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
-    marginTop: 2,
-  },
-  menuButton: {
-    padding: 10,
-  },
-  resultsInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 15,
-  },
-  resultsBack: {
-    marginRight: 10,
-  },
-  resultsText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-  },
+  compareHintText: { fontSize: 12, color: 'rgba(255,255,255,0.9)' },
   filtersContainer: {
-    backgroundColor: '#fff',
-    paddingVertical: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-    elevation: 3,
+    backgroundColor: '#fff', paddingVertical: 15,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 5, elevation: 3,
   },
-  filtersScroll: {
-    paddingHorizontal: 15,
-    gap: 10,
-  },
+  filtersScroll: { paddingHorizontal: 15, gap: 10 },
   mapButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#11998e',
-    gap: 5,
+    flexDirection: 'row', alignItems: 'center', paddingHorizontal: 15, paddingVertical: 10,
+    borderRadius: 20, borderWidth: 1, borderColor: '#11998e', gap: 5,
   },
-  mapButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#11998e',
-  },
-  filterButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    backgroundColor: '#f5f5f5',
-  },
-  filterPillContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  filterText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#666',
-  },
-  filterTextActive: {
-    color: '#fff',
-  },
-  listContainer: {
-    flex: 1,
-  },
-  listContent: {
-    padding: 15,
-  },
+  mapButtonText: { fontSize: 14, fontWeight: '600', color: '#11998e' },
+  filterButton: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, backgroundColor: '#f5f5f5' },
+  filterPillContent: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  filterText: { fontSize: 13, fontWeight: '600', color: '#666' },
+  filterTextActive: { color: '#fff' },
+  listContainer: { flex: 1 },
+  listContent: { padding: 15 },
   hotelCard: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
-    overflow: 'hidden',
+    backgroundColor: '#fff', borderRadius: 20, marginBottom: 15, overflow: 'hidden',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5,
   },
-  cardImageContainer: {
-    height: 150,
-    position: 'relative',
-  },
-  imagePlaceholder: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  cardImageContainer: { height: 150, position: 'relative' },
+  imagePlaceholder: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  selectCircle: {
+    position: 'absolute', top: 15, right: 15,
+    width: 32, height: 32, borderRadius: 16,
+    borderWidth: 2.5, borderColor: 'rgba(255,255,255,0.8)',
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    justifyContent: 'center', alignItems: 'center',
   },
   favoriteButton: {
-    position: 'absolute',
-    top: 15,
-    right: 15,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    position: 'absolute', top: 15, right: 15,
+    width: 40, height: 40, borderRadius: 20,
     backgroundColor: 'rgba(0,0,0,0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'center', alignItems: 'center',
   },
   ratingBadge: {
-    position: 'absolute',
-    bottom: 15,
-    left: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 15,
-    gap: 4,
+    position: 'absolute', bottom: 15, left: 15,
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 10, paddingVertical: 5,
+    borderRadius: 15, gap: 4,
   },
-  ratingBadgeText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  cardContent: {
-    padding: 15,
-  },
-  hotelName: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 5,
-  },
-  locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    marginBottom: 10,
-  },
-  locationText: {
-    fontSize: 14,
-    color: '#999',
-  },
-  amenitiesRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 15,
-  },
-  amenityIcon: {
-    width: 30,
-    height: 30,
-    borderRadius: 8,
-    backgroundColor: 'rgba(17, 153, 142, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  moreAmenities: {
-    width: 30,
-    height: 30,
-    borderRadius: 8,
-    backgroundColor: '#f0f0f0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  moreAmenitiesText: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#666',
-  },
-  priceRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  reviewsText: {
-    fontSize: 12,
-    color: '#999',
-  },
-  priceContainer: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-  },
-  priceValue: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#11998e',
-  },
-  priceNight: {
-    fontSize: 14,
-    color: '#999',
-    marginLeft: 2,
+  ratingBadgeText: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  petIndicator: {
+    position: 'absolute', bottom: 15, right: 15,
+    width: 28, height: 28, borderRadius: 14,
+    backgroundColor: 'rgba(29,151,108,0.7)',
+    justifyContent: 'center', alignItems: 'center',
   },
   categoryBadge: {
-    position: 'absolute',
-    top: 15,
-    left: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
+    position: 'absolute', top: 15, left: 15,
+    flexDirection: 'row', alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.45)',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
-    gap: 4,
+    paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12, gap: 4,
   },
   categoryBadgeText: {
-    color: '#fff',
-    fontSize: 11,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    color: '#fff', fontSize: 11, fontWeight: '700',
+    textTransform: 'uppercase', letterSpacing: 0.5,
   },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 60,
-    gap: 10,
+  cardContent: { padding: 15 },
+  hotelName: { fontSize: 18, fontWeight: '700', color: '#333', marginBottom: 5 },
+  locationRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 10 },
+  locationText: { fontSize: 14, color: '#999' },
+  amenitiesRow: { flexDirection: 'row', gap: 8, marginBottom: 15 },
+  amenityIcon: {
+    width: 30, height: 30, borderRadius: 8,
+    backgroundColor: 'rgba(17, 153, 142, 0.1)',
+    justifyContent: 'center', alignItems: 'center',
   },
-  emptyStateText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#999',
+  moreAmenities: {
+    width: 30, height: 30, borderRadius: 8, backgroundColor: '#f0f0f0',
+    justifyContent: 'center', alignItems: 'center',
   },
-  emptyStateSubtext: {
-    fontSize: 14,
-    color: '#bbb',
+  moreAmenitiesText: { fontSize: 10, fontWeight: '600', color: '#666' },
+  priceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  reviewsText: { fontSize: 12, color: '#999' },
+  priceContainer: { flexDirection: 'row', alignItems: 'baseline' },
+  priceValue: { fontSize: 22, fontWeight: '800', color: '#11998e' },
+  priceNight: { fontSize: 14, color: '#999', marginLeft: 2 },
+  emptyState: { alignItems: 'center', justifyContent: 'center', paddingTop: 60, gap: 10 },
+  emptyStateText: { fontSize: 18, fontWeight: '700', color: '#999' },
+  emptyStateSubtext: { fontSize: 14, color: '#bbb' },
+  // Floating Compare Bar
+  compareBar: {
+    position: 'absolute', bottom: 0, left: 0, right: 0,
+    borderTopLeftRadius: 22, borderTopRightRadius: 22, overflow: 'hidden',
   },
+  compareBarBlur: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 18, paddingTop: 16,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+  },
+  compareBarLeft: { flex: 1, gap: 6 },
+  selectedDots: { flexDirection: 'row', gap: 8 },
+  selectedDot: {
+    width: 34, height: 34, borderRadius: 17,
+    justifyContent: 'center', alignItems: 'center',
+  },
+  selectedDotText: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  emptyDot: {
+    width: 34, height: 34, borderRadius: 17,
+    borderWidth: 2, borderColor: '#e0e0e0', borderStyle: 'dashed',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  compareBarCount: { fontSize: 12, color: '#999', fontWeight: '500' },
+  compareBarBtn: { borderRadius: 14, overflow: 'hidden' },
+  compareBarBtnDisabled: { opacity: 0.5 },
+  compareBarBtnGrad: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    paddingHorizontal: 22, paddingVertical: 14,
+  },
+  compareBarBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
 });
