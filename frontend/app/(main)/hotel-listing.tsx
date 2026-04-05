@@ -38,6 +38,14 @@ const hotelColors = [
   { gradient: ['#00c6ff', '#0072ff'], accent: '#0072ff' },  // Cyan/Blue
   { gradient: ['#f953c6', '#b91d73'], accent: '#b91d73' },  // Magenta/Pink
   { gradient: ['#1D976C', '#93F9B9'], accent: '#1D976C' },  // Green/Mint
+  { gradient: ['#FF416C', '#FF4B2B'], accent: '#FF416C' },  // Red/Coral
+  { gradient: ['#654ea3', '#eaafc8'], accent: '#654ea3' },  // Lavender/Pink
+  { gradient: ['#2193b0', '#6dd5ed'], accent: '#2193b0' },  // Ocean Blue
+  { gradient: ['#cc2b5e', '#753a88'], accent: '#753a88' },  // Wine/Purple
+  { gradient: ['#42275a', '#734b6d'], accent: '#734b6d' },  // Dark Purple
+  { gradient: ['#de6262', '#ffb88c'], accent: '#de6262' },  // Peach/Salmon
+  { gradient: ['#06beb6', '#48b1bf'], accent: '#06beb6' },  // Aqua/Teal
+  { gradient: ['#eb3349', '#f45c43'], accent: '#eb3349' },  // Cherry Red
 ];
 
 const hotels = [
@@ -95,6 +103,127 @@ const hotels = [
     amenities: ['wifi', 'cafe'],
     image: 'hotel5',
     colorIndex: 4,
+  },
+  {
+    id: 6,
+    name: 'Skyline Tower Inn',
+    location: 'Upper East Side, New York',
+    price: 165,
+    rating: 4.7,
+    reviews: 2890,
+    amenities: ['wifi', 'restaurant', 'fitness-center', 'car'],
+    image: 'hotel6',
+    colorIndex: 5,
+  },
+  {
+    id: 7,
+    name: 'The Velvet Rose Hotel',
+    location: 'Chelsea, New York',
+    price: 135,
+    rating: 4.4,
+    reviews: 1678,
+    amenities: ['wifi', 'restaurant', 'cafe'],
+    image: 'hotel7',
+    colorIndex: 6,
+  },
+  {
+    id: 8,
+    name: 'Harbor View Resort',
+    location: 'Battery Park, New York',
+    price: 210,
+    rating: 4.9,
+    reviews: 5234,
+    amenities: ['wifi', 'restaurant', 'fitness-center', 'car', 'cafe'],
+    image: 'hotel8',
+    colorIndex: 7,
+  },
+  {
+    id: 9,
+    name: 'Crimson Peak Lodge',
+    location: 'Greenwich Village, New York',
+    price: 155,
+    rating: 4.5,
+    reviews: 2156,
+    amenities: ['wifi', 'restaurant', 'fitness-center'],
+    image: 'hotel9',
+    colorIndex: 8,
+  },
+  {
+    id: 10,
+    name: 'Lavender Dreams Inn',
+    location: 'Upper West Side, New York',
+    price: 125,
+    rating: 4.3,
+    reviews: 1432,
+    amenities: ['wifi', 'cafe', 'restaurant'],
+    image: 'hotel10',
+    colorIndex: 9,
+  },
+  {
+    id: 11,
+    name: 'Ocean Breeze Suites',
+    location: 'Financial District, New York',
+    price: 175,
+    rating: 4.6,
+    reviews: 3567,
+    amenities: ['wifi', 'restaurant', 'fitness-center', 'car'],
+    image: 'hotel11',
+    colorIndex: 10,
+  },
+  {
+    id: 12,
+    name: 'The Burgundy Hotel',
+    location: 'Tribeca, New York',
+    price: 195,
+    rating: 4.8,
+    reviews: 4123,
+    amenities: ['wifi', 'restaurant', 'fitness-center', 'car', 'cafe'],
+    image: 'hotel12',
+    colorIndex: 11,
+  },
+  {
+    id: 13,
+    name: 'Midnight Star Hotel',
+    location: 'East Village, New York',
+    price: 88,
+    rating: 4.1,
+    reviews: 987,
+    amenities: ['wifi', 'cafe'],
+    image: 'hotel13',
+    colorIndex: 12,
+  },
+  {
+    id: 14,
+    name: 'Sunset Glow Resort',
+    location: 'Hell\'s Kitchen, New York',
+    price: 142,
+    rating: 4.4,
+    reviews: 2345,
+    amenities: ['wifi', 'restaurant', 'fitness-center'],
+    image: 'hotel14',
+    colorIndex: 13,
+  },
+  {
+    id: 15,
+    name: 'Aqua Marine Hotel',
+    location: 'Brooklyn Heights, New York',
+    price: 115,
+    rating: 4.2,
+    reviews: 1876,
+    amenities: ['wifi', 'restaurant', 'cafe'],
+    image: 'hotel15',
+    colorIndex: 14,
+  },
+  {
+    id: 16,
+    name: 'Cherry Blossom Inn',
+    location: 'Williamsburg, New York',
+    price: 99,
+    rating: 4.0,
+    reviews: 1234,
+    amenities: ['wifi', 'cafe'],
+    image: 'hotel16',
+    colorIndex: 15,
   },
 ];
 
