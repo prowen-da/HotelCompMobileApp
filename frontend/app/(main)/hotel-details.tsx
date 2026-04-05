@@ -90,7 +90,7 @@ export default function HotelDetailsScreen() {
       withTiming(0.95, { duration: 100 }),
       withSpring(1)
     );
-    setTimeout(() => router.push('/(main)/checkout'), 200);
+    setTimeout(() => router.push('/(main)/comparison'), 200);
   };
 
   const heartStyle = useAnimatedStyle(() => ({

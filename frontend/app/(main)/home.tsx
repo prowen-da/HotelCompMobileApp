@@ -86,7 +86,7 @@ export default function HomeScreen() {
       withSpring(1)
     );
     setTimeout(() => {
-      router.push('/(main)/hotel-listing');
+      router.push('/(main)/recommendations');
     }, 200);
   };
 
@@ -270,7 +270,7 @@ export default function HomeScreen() {
                   end={{ x: 1, y: 0 }}
                 >
                   <Ionicons name="search" size={20} color="#fff" />
-                  <Text style={styles.searchButtonText}>Search Hotels</Text>
+                  <Text style={styles.searchButtonText}>Find & Compare Hotels</Text>
                 </LinearGradient>
               </AnimatedTouchable>
             </View>
