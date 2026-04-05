@@ -23,216 +23,221 @@ import Animated, {
   FadeInUp,
   SlideInRight,
   ZoomIn,
+  Layout,
 } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
-// Unique color gradients for each hotel
-const hotelColors = [
-  { gradient: ['#667eea', '#764ba2'], accent: '#667eea' },  // Purple/Indigo
-  { gradient: ['#11998e', '#38ef7d'], accent: '#11998e' },  // Teal/Green
-  { gradient: ['#fc4a1a', '#f7b733'], accent: '#fc4a1a' },  // Orange/Yellow
-  { gradient: ['#ee0979', '#ff6a00'], accent: '#ee0979' },  // Pink/Orange
-  { gradient: ['#4776E6', '#8E54E9'], accent: '#4776E6' },  // Blue/Purple
-  { gradient: ['#00c6ff', '#0072ff'], accent: '#0072ff' },  // Cyan/Blue
-  { gradient: ['#f953c6', '#b91d73'], accent: '#b91d73' },  // Magenta/Pink
-  { gradient: ['#1D976C', '#93F9B9'], accent: '#1D976C' },  // Green/Mint
-  { gradient: ['#FF416C', '#FF4B2B'], accent: '#FF416C' },  // Red/Coral
-  { gradient: ['#654ea3', '#eaafc8'], accent: '#654ea3' },  // Lavender/Pink
-  { gradient: ['#2193b0', '#6dd5ed'], accent: '#2193b0' },  // Ocean Blue
-  { gradient: ['#cc2b5e', '#753a88'], accent: '#753a88' },  // Wine/Purple
-  { gradient: ['#42275a', '#734b6d'], accent: '#734b6d' },  // Dark Purple
-  { gradient: ['#de6262', '#ffb88c'], accent: '#de6262' },  // Peach/Salmon
-  { gradient: ['#06beb6', '#48b1bf'], accent: '#06beb6' },  // Aqua/Teal
-  { gradient: ['#eb3349', '#f45c43'], accent: '#eb3349' },  // Cherry Red
+// Category definitions with colors
+const categories = [
+  { id: 'all', name: 'All', gradient: ['#333', '#666'], accent: '#333', icon: 'grid' },
+  { id: 'luxury', name: 'Luxury', gradient: ['#667eea', '#764ba2'], accent: '#667eea', icon: 'diamond' },
+  { id: 'budget', name: 'Budget', gradient: ['#11998e', '#38ef7d'], accent: '#11998e', icon: 'wallet' },
+  { id: 'business', name: 'Business', gradient: ['#2193b0', '#6dd5ed'], accent: '#2193b0', icon: 'briefcase' },
+  { id: 'romantic', name: 'Romantic', gradient: ['#ee0979', '#ff6a00'], accent: '#ee0979', icon: 'heart' },
+  { id: 'family', name: 'Family', gradient: ['#fc4a1a', '#f7b733'], accent: '#fc4a1a', icon: 'people' },
+  { id: 'adventure', name: 'Adventure', gradient: ['#FF416C', '#FF4B2B'], accent: '#FF416C', icon: 'compass' },
+  { id: 'wellness', name: 'Wellness', gradient: ['#1D976C', '#93F9B9'], accent: '#1D976C', icon: 'leaf' },
 ];
+
+// Unique color gradients for each hotel (mapped by category)
+const hotelColors: { [key: string]: { gradient: string[], accent: string } } = {
+  luxury: { gradient: ['#667eea', '#764ba2'], accent: '#667eea' },
+  budget: { gradient: ['#11998e', '#38ef7d'], accent: '#11998e' },
+  family: { gradient: ['#fc4a1a', '#f7b733'], accent: '#fc4a1a' },
+  romantic: { gradient: ['#ee0979', '#ff6a00'], accent: '#ee0979' },
+  business: { gradient: ['#2193b0', '#6dd5ed'], accent: '#2193b0' },
+  adventure: { gradient: ['#FF416C', '#FF4B2B'], accent: '#FF416C' },
+  wellness: { gradient: ['#1D976C', '#93F9B9'], accent: '#1D976C' },
+};
 
 const hotels = [
   {
     id: 1,
     name: 'The Grand Palace Hotel',
     location: 'Downtown, New York',
-    price: 145,
-    rating: 4.6,
+    price: 245,
+    rating: 4.9,
     reviews: 2340,
     amenities: ['wifi', 'restaurant', 'fitness-center', 'car'],
     image: 'hotel1',
-    colorIndex: 0,
+    category: 'luxury',
   },
   {
     id: 2,
-    name: 'Urban Nest Suites',
+    name: 'Budget Inn Express',
     location: 'Midtown, New York',
-    price: 120,
+    price: 65,
     rating: 4.2,
     reviews: 1856,
-    amenities: ['wifi', 'restaurant', 'cafe'],
+    amenities: ['wifi', 'cafe'],
     image: 'hotel2',
-    colorIndex: 1,
+    category: 'budget',
   },
   {
     id: 3,
-    name: 'Lakeview Residency',
+    name: 'Family Fun Resort',
     location: 'Central Park, New York',
-    price: 95,
+    price: 155,
     rating: 4.5,
     reviews: 3210,
     amenities: ['wifi', 'restaurant', 'fitness-center'],
     image: 'hotel3',
-    colorIndex: 2,
+    category: 'family',
   },
   {
     id: 4,
-    name: 'Royal Orchid Central',
+    name: 'Royal Romance Suites',
     location: 'Times Square, New York',
-    price: 180,
+    price: 195,
     rating: 4.8,
     reviews: 4521,
     amenities: ['wifi', 'restaurant', 'fitness-center', 'car', 'cafe'],
     image: 'hotel4',
-    colorIndex: 3,
+    category: 'romantic',
   },
   {
     id: 5,
-    name: 'Bloom Boutique Hotel',
+    name: 'Executive Tower Hotel',
     location: 'SoHo, New York',
-    price: 110,
-    rating: 4.3,
+    price: 185,
+    rating: 4.6,
     reviews: 1245,
-    amenities: ['wifi', 'cafe'],
+    amenities: ['wifi', 'cafe', 'restaurant'],
     image: 'hotel5',
-    colorIndex: 4,
+    category: 'business',
   },
   {
     id: 6,
-    name: 'Skyline Tower Inn',
+    name: 'Adventure Base Camp',
     location: 'Upper East Side, New York',
-    price: 165,
+    price: 125,
     rating: 4.7,
     reviews: 2890,
-    amenities: ['wifi', 'restaurant', 'fitness-center', 'car'],
+    amenities: ['wifi', 'restaurant', 'fitness-center'],
     image: 'hotel6',
-    colorIndex: 5,
+    category: 'adventure',
   },
   {
     id: 7,
-    name: 'The Velvet Rose Hotel',
+    name: 'Serenity Spa Resort',
     location: 'Chelsea, New York',
-    price: 135,
+    price: 175,
     rating: 4.4,
     reviews: 1678,
-    amenities: ['wifi', 'restaurant', 'cafe'],
+    amenities: ['wifi', 'restaurant', 'cafe', 'fitness-center'],
     image: 'hotel7',
-    colorIndex: 6,
+    category: 'wellness',
   },
   {
     id: 8,
-    name: 'Harbor View Resort',
+    name: 'The Ritz Platinum',
     location: 'Battery Park, New York',
-    price: 210,
+    price: 320,
     rating: 4.9,
     reviews: 5234,
     amenities: ['wifi', 'restaurant', 'fitness-center', 'car', 'cafe'],
     image: 'hotel8',
-    colorIndex: 7,
+    category: 'luxury',
   },
   {
     id: 9,
-    name: 'Crimson Peak Lodge',
+    name: 'Thrifty Stay Motel',
     location: 'Greenwich Village, New York',
-    price: 155,
-    rating: 4.5,
+    price: 55,
+    rating: 4.0,
     reviews: 2156,
-    amenities: ['wifi', 'restaurant', 'fitness-center'],
+    amenities: ['wifi'],
     image: 'hotel9',
-    colorIndex: 8,
+    category: 'budget',
   },
   {
     id: 10,
-    name: 'Lavender Dreams Inn',
+    name: 'Kids Paradise Hotel',
     location: 'Upper West Side, New York',
-    price: 125,
+    price: 145,
     rating: 4.3,
     reviews: 1432,
     amenities: ['wifi', 'cafe', 'restaurant'],
     image: 'hotel10',
-    colorIndex: 9,
+    category: 'family',
   },
   {
     id: 11,
-    name: 'Ocean Breeze Suites',
+    name: 'Corporate Suites NYC',
     location: 'Financial District, New York',
-    price: 175,
+    price: 195,
     rating: 4.6,
     reviews: 3567,
     amenities: ['wifi', 'restaurant', 'fitness-center', 'car'],
     image: 'hotel11',
-    colorIndex: 10,
+    category: 'business',
   },
   {
     id: 12,
-    name: 'The Burgundy Hotel',
+    name: 'Honeymoon Haven',
     location: 'Tribeca, New York',
-    price: 195,
+    price: 225,
     rating: 4.8,
     reviews: 4123,
     amenities: ['wifi', 'restaurant', 'fitness-center', 'car', 'cafe'],
     image: 'hotel12',
-    colorIndex: 11,
+    category: 'romantic',
   },
   {
     id: 13,
-    name: 'Midnight Star Hotel',
+    name: 'Extreme Sports Lodge',
     location: 'East Village, New York',
-    price: 88,
-    rating: 4.1,
+    price: 115,
+    rating: 4.5,
     reviews: 987,
-    amenities: ['wifi', 'cafe'],
+    amenities: ['wifi', 'cafe', 'fitness-center'],
     image: 'hotel13',
-    colorIndex: 12,
+    category: 'adventure',
   },
   {
     id: 14,
-    name: 'Sunset Glow Resort',
+    name: 'Zen Garden Retreat',
     location: 'Hell\'s Kitchen, New York',
-    price: 142,
-    rating: 4.4,
+    price: 165,
+    rating: 4.7,
     reviews: 2345,
     amenities: ['wifi', 'restaurant', 'fitness-center'],
     image: 'hotel14',
-    colorIndex: 13,
+    category: 'wellness',
   },
   {
     id: 15,
-    name: 'Aqua Marine Hotel',
+    name: 'Value Stay Plus',
     location: 'Brooklyn Heights, New York',
-    price: 115,
-    rating: 4.2,
+    price: 75,
+    rating: 4.1,
     reviews: 1876,
-    amenities: ['wifi', 'restaurant', 'cafe'],
+    amenities: ['wifi', 'cafe'],
     image: 'hotel15',
-    colorIndex: 14,
+    category: 'budget',
   },
   {
     id: 16,
-    name: 'Cherry Blossom Inn',
+    name: 'Imperial Luxury Palace',
     location: 'Williamsburg, New York',
-    price: 99,
-    rating: 4.0,
+    price: 285,
+    rating: 4.8,
     reviews: 1234,
-    amenities: ['wifi', 'cafe'],
+    amenities: ['wifi', 'restaurant', 'fitness-center', 'car', 'cafe'],
     image: 'hotel16',
-    colorIndex: 15,
+    category: 'luxury',
   },
 ];
-
-const filters = ['All', 'Price', 'Rating', 'Distance', 'Amenities'];
 
 const HotelCard = ({ hotel, index }: { hotel: typeof hotels[0]; index: number }) => {
   const cardScale = useSharedValue(1);
   const heartScale = useSharedValue(1);
   const [isFavorite, setIsFavorite] = useState(false);
+
+  // Get colors based on category
+  const colors = hotelColors[hotel.category] || hotelColors.budget;
 
   const handlePress = () => {
     cardScale.value = withSequence(
@@ -268,6 +273,9 @@ const HotelCard = ({ hotel, index }: { hotel: typeof hotels[0]; index: number })
     cafe: 'cafe',
   };
 
+  // Get category info for badge
+  const categoryInfo = categories.find(c => c.id === hotel.category);
+
   return (
     <Animated.View
       entering={SlideInRight.delay(index * 100).springify()}
@@ -279,13 +287,18 @@ const HotelCard = ({ hotel, index }: { hotel: typeof hotels[0]; index: number })
       >
         <View style={styles.cardImageContainer}>
           <LinearGradient
-            colors={hotelColors[hotel.colorIndex % hotelColors.length].gradient}
+            colors={colors.gradient}
             style={StyleSheet.absoluteFill}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           />
           <View style={styles.imagePlaceholder}>
             <Ionicons name="image" size={40} color="rgba(255,255,255,0.3)" />
+          </View>
+          {/* Category Badge */}
+          <View style={styles.categoryBadge}>
+            <Ionicons name={categoryInfo?.icon as any || 'pricetag'} size={12} color="#fff" />
+            <Text style={styles.categoryBadgeText}>{categoryInfo?.name}</Text>
           </View>
           <AnimatedTouchable
             style={[styles.favoriteButton, heartStyle]}
@@ -315,12 +328,12 @@ const HotelCard = ({ hotel, index }: { hotel: typeof hotels[0]; index: number })
               <Animated.View
                 key={amenity}
                 entering={ZoomIn.delay(index * 100 + i * 50)}
-                style={[styles.amenityIcon, { backgroundColor: hotelColors[hotel.colorIndex % hotelColors.length].accent + '15' }]}
+                style={[styles.amenityIcon, { backgroundColor: colors.accent + '15' }]}
               >
                 <Ionicons
                   name={amenityIcons[amenity] as any}
                   size={14}
-                  color={hotelColors[hotel.colorIndex % hotelColors.length].accent}
+                  color={colors.accent}
                 />
               </Animated.View>
             ))}
@@ -336,7 +349,7 @@ const HotelCard = ({ hotel, index }: { hotel: typeof hotels[0]; index: number })
               <Text style={styles.reviewsText}>{hotel.reviews.toLocaleString()} reviews</Text>
             </View>
             <View style={styles.priceContainer}>
-              <Text style={[styles.priceValue, { color: hotelColors[hotel.colorIndex % hotelColors.length].accent }]}>${hotel.price}</Text>
+              <Text style={[styles.priceValue, { color: colors.accent }]}>${hotel.price}</Text>
               <Text style={styles.priceNight}>/night</Text>
             </View>
           </View>
@@ -347,8 +360,12 @@ const HotelCard = ({ hotel, index }: { hotel: typeof hotels[0]; index: number })
 };
 
 export default function HotelListingScreen() {
-  const [activeFilter, setActiveFilter] = useState('All');
+  const [activeFilter, setActiveFilter] = useState('all');
   const insets = useSafeAreaInsets();
+
+  const filteredHotels = activeFilter === 'all'
+    ? hotels
+    : hotels.filter((h) => h.category === activeFilter);
 
   return (
     <View style={styles.container}>
@@ -388,11 +405,11 @@ export default function HotelListingScreen() {
           <TouchableOpacity style={styles.resultsBack}>
             <Ionicons name="chevron-back" size={20} color="#fff" />
           </TouchableOpacity>
-          <Text style={styles.resultsText}>{hotels.length} Hotels available</Text>
+          <Text style={styles.resultsText}>{filteredHotels.length} Hotels available</Text>
         </Animated.View>
       </LinearGradient>
 
-      {/* Filters */}
+      {/* Category Filter Pills */}
       <Animated.View
         style={styles.filtersContainer}
         entering={FadeInDown.delay(300)}
@@ -402,11 +419,6 @@ export default function HotelListingScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filtersScroll}
         >
-          <TouchableOpacity style={styles.filterIconButton}>
-            <Ionicons name="filter" size={18} color="#11998e" />
-            <Text style={styles.filterIconText}>Filter</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity
             style={styles.mapButton}
             onPress={() => router.push('/(main)/map-view')}
@@ -415,29 +427,39 @@ export default function HotelListingScreen() {
             <Text style={styles.mapButtonText}>Map</Text>
           </TouchableOpacity>
 
-          {filters.map((filter, index) => (
-            <Animated.View
-              key={filter}
-              entering={SlideInRight.delay(400 + index * 80)}
-            >
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  activeFilter === filter && styles.filterButtonActive,
-                ]}
-                onPress={() => setActiveFilter(filter)}
+          {categories.map((cat, index) => {
+            const isActive = activeFilter === cat.id;
+            return (
+              <Animated.View
+                key={cat.id}
+                entering={SlideInRight.delay(400 + index * 80)}
               >
-                <Text
+                <TouchableOpacity
                   style={[
-                    styles.filterText,
-                    activeFilter === filter && styles.filterTextActive,
+                    styles.filterButton,
+                    isActive && { backgroundColor: cat.accent },
                   ]}
+                  onPress={() => setActiveFilter(cat.id)}
                 >
-                  {filter}
-                </Text>
-              </TouchableOpacity>
-            </Animated.View>
-          ))}
+                  <View style={styles.filterPillContent}>
+                    <Ionicons
+                      name={cat.icon as any}
+                      size={14}
+                      color={isActive ? '#fff' : cat.accent}
+                    />
+                    <Text
+                      style={[
+                        styles.filterText,
+                        isActive && styles.filterTextActive,
+                      ]}
+                    >
+                      {cat.name}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </Animated.View>
+            );
+          })}
         </ScrollView>
       </Animated.View>
 
@@ -447,9 +469,17 @@ export default function HotelListingScreen() {
         contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 20 }]}
         showsVerticalScrollIndicator={false}
       >
-        {hotels.map((hotel, index) => (
+        {filteredHotels.map((hotel, index) => (
           <HotelCard key={hotel.id} hotel={hotel} index={index} />
         ))}
+
+        {filteredHotels.length === 0 && (
+          <Animated.View entering={FadeInDown} style={styles.emptyState}>
+            <Ionicons name="search-outline" size={48} color="#ccc" />
+            <Text style={styles.emptyStateText}>No hotels found</Text>
+            <Text style={styles.emptyStateSubtext}>Try a different category</Text>
+          </Animated.View>
+        )}
       </ScrollView>
     </View>
   );
@@ -524,21 +554,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     gap: 10,
   },
-  filterIconButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#11998e',
-    gap: 5,
-  },
-  filterIconText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#11998e',
-  },
   mapButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -555,17 +570,19 @@ const styles = StyleSheet.create({
     color: '#11998e',
   },
   filterButton: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
     backgroundColor: '#f5f5f5',
   },
-  filterButtonActive: {
-    backgroundColor: '#11998e',
+  filterPillContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   filterText: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 13,
+    fontWeight: '600',
     color: '#666',
   },
   filterTextActive: {
@@ -692,5 +709,39 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#999',
     marginLeft: 2,
+  },
+  categoryBadge: {
+    position: 'absolute',
+    top: 15,
+    left: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+    gap: 4,
+  },
+  categoryBadgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 60,
+    gap: 10,
+  },
+  emptyStateText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#999',
+  },
+  emptyStateSubtext: {
+    fontSize: 14,
+    color: '#bbb',
   },
 });
