@@ -115,7 +115,7 @@ export default function HomeScreen() {
               <Ionicons name="menu" size={24} color="#fff" />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>StayCompare</Text>
-            <TouchableOpacity style={styles.profileButton}>
+            <TouchableOpacity style={styles.profileButton} onPress={() => router.push('/(main)/profile')}>
               <Ionicons name="person-circle-outline" size={28} color="#fff" />
             </TouchableOpacity>
           </Animated.View>
