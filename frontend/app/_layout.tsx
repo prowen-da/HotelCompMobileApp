@@ -34,6 +34,7 @@ export default function RootLayout() {
         <Stack.Screen name="(main)/comparison-detail" />
         <Stack.Screen name="(main)/recommendations" />
         <Stack.Screen name="(main)/notifications" />
+        <Stack.Screen name="(main)/settings" />
       </Stack>
     </GestureHandlerRootView>
   );
