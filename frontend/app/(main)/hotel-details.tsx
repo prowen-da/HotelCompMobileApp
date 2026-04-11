@@ -487,8 +487,7 @@ const styles = StyleSheet.create({
   // Sections
   section: {
     backgroundColor: '#fff', borderRadius: 20, padding: 18, marginHorizontal: 15,
-    marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05, shadowRadius: 8, elevation: 3,
+    marginBottom: 14, boxShadow: '0px 2px 8px rgba(0,0,0,0.05)', elevation: 3,
   },
   sectionTitle: { fontSize: 17, fontWeight: '700', color: '#333', marginBottom: 3 },
   sectionSub: { fontSize: 12, color: '#999', marginBottom: 14 },

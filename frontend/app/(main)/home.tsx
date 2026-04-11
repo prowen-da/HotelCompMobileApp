@@ -31,6 +31,23 @@ import Animated, {
 const { width } = Dimensions.get('window');
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
+function AnimatedBar({ heightValue, barWidth }: { heightValue: Animated.SharedValue<number>; barWidth: number }) {
+  const barStyle = useAnimatedStyle(() => ({
+    height: heightValue.value,
+    width: barWidth,
+  }));
+  return (
+    <Animated.View style={[styles.bar, barStyle]}>
+      <LinearGradient
+        colors={['rgba(102,126,234,0.5)', 'rgba(102,126,234,0.15)']}
+        style={StyleSheet.absoluteFill}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+      />
+    </Animated.View>
+  );
+}
+
 const travelTypes = [
   { id: 'business', label: 'Business', icon: 'briefcase', gradient: ['#2193b0', '#6dd5ed'] },
   { id: 'family', label: 'Family', icon: 'people', gradient: ['#fc4a1a', '#f7b733'] },
@@ -111,22 +128,9 @@ export default function HomeScreen() {
         {/* City Illustration */}
         <Animated.View entering={FadeInUp.delay(200)} style={styles.illustration}>
           <View style={styles.barsGroup}>
-            {barHeights.map((h, i) => {
-              const s = useAnimatedStyle(() => ({
-                height: h.value,
-                width: 18 + i * 4,
-              }));
-              return (
-                <Animated.View key={i} style={[styles.bar, s]}>
-                  <LinearGradient
-                    colors={['rgba(102,126,234,0.5)', 'rgba(102,126,234,0.15)']}
-                    style={StyleSheet.absoluteFill}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 0, y: 1 }}
-                  />
-                </Animated.View>
-              );
-            })}
+            {barHeights.map((h, i) => (
+              <AnimatedBar key={i} heightValue={h} barWidth={18 + i * 4} />
+            ))}
           </View>
           <Animated.View style={[styles.pin, pinStyle]}>
             <Ionicons name="location" size={36} color="#FFD700" />
@@ -312,7 +316,7 @@ const styles = StyleSheet.create({
   illustration: { height: 90, justifyContent: 'flex-end', alignItems: 'center', marginBottom: 16 },
   barsGroup: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
   bar: { borderTopLeftRadius: 5, borderTopRightRadius: 5, overflow: 'hidden' },
-  pin: { position: 'absolute', top: 0, right: width * 0.18 },
+  pin: { position: 'absolute', top: 0, alignSelf: 'center', right: '15%' },
   // Card
   card: {
     backgroundColor: 'rgba(255,255,255,0.06)',

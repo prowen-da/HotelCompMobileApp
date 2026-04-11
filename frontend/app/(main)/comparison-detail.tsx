@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
   tabText: { fontSize: 13, fontWeight: '600', color: '#666' },
   tabTextActive: { color: '#fff' },
   body: { flex: 1, padding: 15 },
-  card: { backgroundColor: '#fff', borderRadius: 18, padding: 16, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 3 },
+  card: { backgroundColor: '#fff', borderRadius: 18, padding: 16, marginBottom: 14, boxShadow: '0px 2px 8px rgba(0,0,0,0.05)', elevation: 3 },
   cardTitle: { fontSize: 16, fontWeight: '700', color: '#333', marginBottom: 4 },
   cardSub: { fontSize: 12, color: '#999', marginBottom: 14 },
   // Ratings
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
   ratingBarRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
   ratingDot: { width: 8, height: 8, borderRadius: 4 },
   ratingScore: { fontSize: 13, fontWeight: '700', width: 32, textAlign: 'right' },
-  overallCard: { backgroundColor: '#fff', borderRadius: 18, padding: 16, marginTop: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 3 },
+  overallCard: { backgroundColor: '#fff', borderRadius: 18, padding: 16, marginTop: 4, boxShadow: '0px 2px 8px rgba(0,0,0,0.05)', elevation: 3 },
   overallRow: { flexDirection: 'row', justifyContent: 'space-around', marginTop: 10 },
   overallItem: { alignItems: 'center', gap: 6 },
   overallCircle: { width: 60, height: 60, borderRadius: 30, borderWidth: 3, justifyContent: 'center', alignItems: 'center' },
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
   featureSummaryCount: { fontSize: 18, fontWeight: '800' },
   featureSummaryLabel: { fontSize: 11, color: '#999' },
   // Trip Match
-  tripCard: { backgroundColor: '#fff', borderRadius: 18, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 2 },
+  tripCard: { backgroundColor: '#fff', borderRadius: 18, padding: 16, marginBottom: 12, boxShadow: '0px 2px 6px rgba(0,0,0,0.04)', elevation: 2 },
   tripHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
   tripIconWrap: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
   tripLabel: { fontSize: 15, fontWeight: '700', color: '#333' },

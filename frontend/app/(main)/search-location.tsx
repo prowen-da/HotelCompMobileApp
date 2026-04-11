@@ -258,10 +258,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 15,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
+    boxShadow: '0px 2px 5px rgba(0,0,0,0.05)',
     elevation: 2,
   },
   locationIcon: {

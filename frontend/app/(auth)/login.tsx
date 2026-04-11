@@ -339,10 +339,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#667eea',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
+    boxShadow: '0px 8px 16px rgba(102,126,234,0.4)',
     elevation: 10,
   },
   headerContainer: {
