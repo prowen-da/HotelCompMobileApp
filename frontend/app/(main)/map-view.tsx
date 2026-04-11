@@ -67,7 +67,7 @@ export default function MapViewScreen() {
       {/* Map Background (Simulated) */}
       <View style={styles.mapContainer}>
         <LinearGradient
-          colors={['#e8f5e9', '#c8e6c9', '#a5d6a7']}
+          colors={['#0f0c29', '#302b63', '#24243e']}
           style={StyleSheet.absoluteFill}
         />
         
@@ -177,7 +177,7 @@ export default function MapViewScreen() {
             <View style={styles.hotelCardContent}>
               <View style={styles.hotelImagePlaceholder}>
                 <LinearGradient
-                  colors={['#11998e', '#38ef7d']}
+                  colors={['#667eea', '#764ba2']}
                   style={StyleSheet.absoluteFill}
                 />
                 <Ionicons name="image" size={30} color="rgba(255,255,255,0.5)" />
@@ -200,7 +200,7 @@ export default function MapViewScreen() {
                 onPress={handleViewDetails}
               >
                 <LinearGradient
-                  colors={['#11998e', '#38ef7d']}
+                  colors={['#667eea', '#764ba2']}
                   style={styles.viewButtonGradient}
                 >
                   <Ionicons name="arrow-forward" size={20} color="#fff" />
@@ -227,7 +227,7 @@ export default function MapViewScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#0f0c29',
   },
   mapContainer: {
     flex: 1,
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     justifyContent: 'center',
     alignItems: 'center',
     boxShadow: '0px 4px 8px rgba(0,0,0,0.2)',
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
     marginTop: -2,
   },
   priceTag: {
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 10,
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
   },
   searchText: {
     fontSize: 16,
-    color: '#333',
+    color: '#fff',
     fontWeight: '500',
   },
   filterButton: {
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
   hotelName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#333',
+    color: '#fff',
     marginBottom: 5,
   },
   ratingRow: {
@@ -421,11 +421,11 @@ const styles = StyleSheet.create({
   ratingText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: '#fff',
   },
   reviewsText: {
     fontSize: 12,
-    color: '#999',
+    color: 'rgba(255,255,255,0.4)',
   },
   priceRow: {
     flexDirection: 'row',
@@ -434,7 +434,7 @@ const styles = StyleSheet.create({
   },
   priceLabel: {
     fontSize: 12,
-    color: '#999',
+    color: 'rgba(255,255,255,0.4)',
   },
   priceValue: {
     fontSize: 20,
@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
   },
   priceNight: {
     fontSize: 12,
-    color: '#999',
+    color: 'rgba(255,255,255,0.4)',
   },
   viewButton: {
     width: 50,
@@ -470,6 +470,6 @@ const styles = StyleSheet.create({
   countText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: '#fff',
   },
 });

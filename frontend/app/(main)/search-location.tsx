@@ -50,7 +50,7 @@ export default function SearchLocationScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#11998e', '#38ef7d']}
+        colors={['#0f0c29', '#302b63', '#24243e']}
         style={[styles.headerGradient, { paddingTop: insets.top + 10 }]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -174,7 +174,7 @@ export default function SearchLocationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#0f0c29',
   },
   headerGradient: {
     paddingBottom: 25,
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#333',
+    color: '#fff',
     marginBottom: 15,
   },
   clearAllText: {
@@ -254,18 +254,17 @@ const styles = StyleSheet.create({
   locationItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     padding: 15,
     borderRadius: 15,
     marginBottom: 10,
-    boxShadow: '0px 2px 5px rgba(0,0,0,0.05)',
-    elevation: 2,
+        
   },
   locationIcon: {
     width: 45,
     height: 45,
     borderRadius: 12,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#0f0c29',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
@@ -276,16 +275,16 @@ const styles = StyleSheet.create({
   locationName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: '#fff',
     marginBottom: 4,
   },
   locationCountry: {
     fontSize: 14,
-    color: '#999',
+    color: 'rgba(255,255,255,0.4)',
   },
   noResults: {
     fontSize: 16,
-    color: '#999',
+    color: 'rgba(255,255,255,0.4)',
     textAlign: 'center',
     paddingVertical: 20,
   },

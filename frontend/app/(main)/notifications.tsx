@@ -35,7 +35,7 @@ const notifications = [
     time: '1 hour ago',
     read: false,
     icon: 'pricetag',
-    gradient: ['#ee0979', '#ff6a00'],
+    gradient: ['#a78bfa', '#c084fc'],
   },
   {
     id: 3,
@@ -55,7 +55,7 @@ const notifications = [
     time: '1 day ago',
     read: true,
     icon: 'star',
-    gradient: ['#fc4a1a', '#f7b733'],
+    gradient: ['#F5A623', '#FFD700'],
   },
   {
     id: 5,
@@ -75,7 +75,7 @@ const notifications = [
     time: '3 days ago',
     read: true,
     icon: 'compass',
-    gradient: ['#FF416C', '#FF4B2B'],
+    gradient: ['#ef4444', '#f87171'],
   },
   {
     id: 7,
@@ -122,7 +122,7 @@ export default function NotificationsScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#fc4a1a', '#f7b733']}
+        colors={['#0f0c29', '#302b63', '#24243e']}
         style={[styles.header, { paddingTop: insets.top + 10 }]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -169,7 +169,7 @@ export default function NotificationsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  container: { flex: 1, backgroundColor: '#0f0c29' },
   header: { paddingBottom: 20, paddingHorizontal: 15 },
   headerRow: {
     flexDirection: 'row',
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#999',
+    color: 'rgba(255,255,255,0.4)',
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 12,
@@ -207,17 +207,16 @@ const styles = StyleSheet.create({
   },
   notifCard: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 16,
     padding: 14,
     marginBottom: 10,
-    boxShadow: '0px 2px 6px rgba(0,0,0,0.04)',
-    elevation: 2,
+        
   },
   notifCardUnread: {
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderLeftWidth: 3,
-    borderLeftColor: '#fc4a1a',
+    borderLeftColor: '#F5A623',
   },
   notifIcon: {
     width: 44,
@@ -233,14 +232,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 4,
   },
-  notifTitle: { flex: 1, fontSize: 15, fontWeight: '700', color: '#333' },
+  notifTitle: { flex: 1, fontSize: 15, fontWeight: '700', color: '#fff' },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#fc4a1a',
+    backgroundColor: '#F5A623',
     marginLeft: 8,
   },
-  notifMessage: { fontSize: 13, color: '#666', lineHeight: 18, marginBottom: 6 },
-  notifTime: { fontSize: 11, color: '#bbb' },
+  notifMessage: { fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 18, marginBottom: 6 },
+  notifTime: { fontSize: 11, color: 'rgba(255,255,255,0.3)' },
 });

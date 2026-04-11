@@ -46,7 +46,7 @@ export default function SettingsScreen() {
         {
           icon: 'people-outline',
           label: 'Default Trip Type',
-          color: '#fc4a1a',
+          color: '#F5A623',
           type: 'selector',
           options: defaultTrips,
           selected: selectedTrip,
@@ -78,7 +78,7 @@ export default function SettingsScreen() {
         {
           icon: 'trending-down-outline',
           label: 'Price Drop Alerts',
-          color: '#ee0979',
+          color: '#a78bfa',
           type: 'toggle',
           value: priceAlerts,
           onToggle: setPriceAlerts,
@@ -92,7 +92,7 @@ export default function SettingsScreen() {
         {
           icon: 'moon-outline',
           label: 'Dark Mode',
-          color: '#333',
+          color: '#fff',
           type: 'toggle',
           value: darkMode,
           onToggle: setDarkMode,
@@ -104,7 +104,7 @@ export default function SettingsScreen() {
       title: 'Data & Privacy',
       items: [
         { icon: 'cloud-download-outline', label: 'Download My Data', color: '#2193b0', type: 'link' },
-        { icon: 'trash-outline', label: 'Clear Search History', color: '#FF416C', type: 'link' },
+        { icon: 'trash-outline', label: 'Clear Search History', color: '#ef4444', type: 'link' },
         { icon: 'shield-checkmark-outline', label: 'Privacy Policy', color: '#764ba2', type: 'link' },
         { icon: 'document-text-outline', label: 'Terms of Service', color: '#11998e', type: 'link' },
       ],
@@ -112,7 +112,7 @@ export default function SettingsScreen() {
     {
       title: 'About',
       items: [
-        { icon: 'information-circle-outline', label: 'App Version', color: '#999', type: 'info', info: 'v1.0.0' },
+        { icon: 'information-circle-outline', label: 'App Version', color: 'rgba(255,255,255,0.4)', type: 'info', info: 'v1.0.0' },
         { icon: 'star-outline', label: 'Rate the App', color: '#FFD700', type: 'link' },
         { icon: 'chatbubble-ellipses-outline', label: 'Send Feedback', color: '#2193b0', type: 'link' },
       ],
@@ -120,23 +120,18 @@ export default function SettingsScreen() {
   ];
 
   return (
-    <View style={styles.container}>
-      <LinearGradient
-        colors={['#2193b0', '#6dd5ed']}
-        style={[styles.header, { paddingTop: insets.top + 10 }]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
+    <LinearGradient colors={['#0f0c29', '#302b63', '#24243e']} style={styles.container}>
+      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <Animated.View entering={FadeInDown.springify()} style={styles.headerRow}>
           <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <BlurView intensity={30} style={styles.backBtnBlur}>
-              <Ionicons name="arrow-back" size={24} color="#fff" />
+            <BlurView intensity={25} style={styles.backBtnBlur} tint="dark">
+              <Ionicons name="arrow-back" size={22} color="#fff" />
             </BlurView>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Settings</Text>
           <View style={{ width: 45 }} />
         </Animated.View>
-      </LinearGradient>
+      </View>
 
       <ScrollView
         style={styles.body}
@@ -198,12 +193,12 @@ export default function SettingsScreen() {
                       <Switch
                         value={item.value}
                         onValueChange={item.onToggle}
-                        trackColor={{ false: '#e0e0e0', true: item.color + '60' }}
-                        thumbColor={item.value ? item.color : '#f4f4f4'}
+                        trackColor={{ false: 'rgba(255,255,255,0.1)', true: item.color + '60' }}
+                        thumbColor={item.value ? item.color : 'rgba(255,255,255,0.5)'}
                       />
                     )}
                     {item.type === 'link' && (
-                      <Ionicons name="chevron-forward" size={18} color="#ccc" />
+                      <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.25)" />
                     )}
                     {item.type === 'info' && (
                       <Text style={styles.infoText}>{item.info}</Text>
@@ -219,21 +214,21 @@ export default function SettingsScreen() {
         <Animated.View entering={FadeInUp.delay(800)} style={styles.section}>
           <Text style={styles.sectionTitle}>Account</Text>
           <TouchableOpacity style={styles.dangerBtn}>
-            <Ionicons name="log-out-outline" size={20} color="#FF416C" />
+            <Ionicons name="log-out-outline" size={20} color="#ef4444" />
             <Text style={styles.dangerText}>Log Out</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.dangerBtn, { marginTop: 8 }]}>
-            <Ionicons name="trash-outline" size={20} color="#FF416C" />
+            <Ionicons name="trash-outline" size={20} color="#ef4444" />
             <Text style={styles.dangerText}>Delete Account</Text>
           </TouchableOpacity>
         </Animated.View>
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  container: { flex: 1 },
   header: { paddingBottom: 18, paddingHorizontal: 15 },
   headerRow: {
     flexDirection: 'row',
@@ -253,18 +248,18 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#999',
+    color: 'rgba(255,255,255,0.4)',
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 10,
     marginLeft: 4,
   },
   sectionCard: {
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 18,
     overflow: 'hidden',
-    boxShadow: '0px 2px 8px rgba(0,0,0,0.05)',
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   settingRow: {
     flexDirection: 'row',
@@ -274,7 +269,7 @@ const styles = StyleSheet.create({
   },
   settingRowBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: '#f5f5f5',
+    borderBottomColor: 'rgba(255,255,255,0.06)',
   },
   iconWrap: {
     width: 38,
@@ -285,8 +280,8 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   settingInfo: { flex: 1 },
-  settingLabel: { fontSize: 15, fontWeight: '500', color: '#333' },
-  settingSub: { fontSize: 12, color: '#999', marginTop: 2 },
+  settingLabel: { fontSize: 15, fontWeight: '500', color: '#fff' },
+  settingSub: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 },
   selectorRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -298,22 +293,22 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    backgroundColor: '#f9f9f9',
+    borderColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(255,255,255,0.04)',
   },
-  selectorText: { fontSize: 12, fontWeight: '500', color: '#666' },
+  selectorText: { fontSize: 12, fontWeight: '500', color: 'rgba(255,255,255,0.6)' },
   selectorTextActive: { color: '#fff', fontWeight: '600' },
-  infoText: { fontSize: 14, color: '#999', fontWeight: '500' },
+  infoText: { fontSize: 14, color: 'rgba(255,255,255,0.4)', fontWeight: '500' },
   dangerBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 14,
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: '#FFE0E6',
+    borderColor: 'rgba(239,68,68,0.15)',
   },
-  dangerText: { fontSize: 15, fontWeight: '600', color: '#FF416C' },
+  dangerText: { fontSize: 15, fontWeight: '600', color: '#ef4444' },
 });

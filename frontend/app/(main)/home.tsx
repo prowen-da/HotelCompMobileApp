@@ -50,8 +50,8 @@ function AnimatedBar({ heightValue, barWidth }: { heightValue: Animated.SharedVa
 
 const travelTypes = [
   { id: 'business', label: 'Business', icon: 'briefcase', gradient: ['#2193b0', '#6dd5ed'] },
-  { id: 'family', label: 'Family', icon: 'people', gradient: ['#fc4a1a', '#f7b733'] },
-  { id: 'couple', label: 'Couple', icon: 'heart', gradient: ['#ee0979', '#ff6a00'] },
+  { id: 'family', label: 'Family', icon: 'people', gradient: ['#F5A623', '#FFD700'] },
+  { id: 'couple', label: 'Couple', icon: 'heart', gradient: ['#a78bfa', '#c084fc'] },
   { id: 'friends', label: 'Friends', icon: 'beer', gradient: ['#667eea', '#764ba2'] },
   { id: 'solo', label: 'Solo', icon: 'person', gradient: ['#1D976C', '#93F9B9'] },
 ];
@@ -284,13 +284,13 @@ export default function HomeScreen() {
           </TouchableOpacity>
           <TouchableOpacity style={styles.quickLink} onPress={() => router.push('/(main)/comparison')}>
             <View style={[styles.quickIcon, { backgroundColor: 'rgba(238,9,121,0.15)' }]}>
-              <Ionicons name="bar-chart-outline" size={18} color="#ee0979" />
+              <Ionicons name="bar-chart-outline" size={18} color="#a78bfa" />
             </View>
             <Text style={styles.quickText}>Compare</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.quickLink} onPress={() => router.push('/(main)/favorites')}>
             <View style={[styles.quickIcon, { backgroundColor: 'rgba(255,65,108,0.15)' }]}>
-              <Ionicons name="heart-outline" size={18} color="#FF416C" />
+              <Ionicons name="heart-outline" size={18} color="#ef4444" />
             </View>
             <Text style={styles.quickText}>Saved</Text>
           </TouchableOpacity>

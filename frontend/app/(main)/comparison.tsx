@@ -473,7 +473,7 @@ export default function ComparisonScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#0f0c29',
   },
   headerGradient: {
     paddingBottom: 20,
@@ -503,13 +503,12 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     marginHorizontal: 20,
     marginTop: -10,
     borderRadius: 15,
     padding: 5,
-    boxShadow: '0px 2px 10px rgba(0,0,0,0.1)',
-    elevation: 5,
+        
     position: 'relative',
   },
   tabIndicator: {
@@ -531,7 +530,7 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#666',
+    color: 'rgba(255,255,255,0.6)',
   },
   tabTextActive: {
     color: '#fff',
@@ -606,7 +605,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.8)',
   },
   sectionContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 20,
     padding: 20,
     marginBottom: 20,
@@ -614,12 +613,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#333',
+    color: '#fff',
     marginBottom: 5,
   },
   sectionSubtitle: {
     fontSize: 13,
-    color: '#999',
+    color: 'rgba(255,255,255,0.4)',
     marginBottom: 15,
   },
   quickCompareRow: {
@@ -628,21 +627,21 @@ const styles = StyleSheet.create({
   },
   quickCompareCard: {
     flex: 1,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: 'rgba(255,255,255,0.04)',
     borderRadius: 15,
     padding: 15,
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   pickLabel: {
     fontSize: 12,
-    color: '#999',
+    color: 'rgba(255,255,255,0.4)',
     marginBottom: 5,
   },
   hotelName: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#333',
+    color: '#fff',
     marginBottom: 10,
   },
   ratingRow: {
@@ -652,7 +651,7 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontSize: 14,
-    color: '#333',
+    color: '#fff',
     fontWeight: '600',
     marginRight: 'auto',
   },
@@ -680,7 +679,7 @@ const styles = StyleSheet.create({
   },
   barLabel: {
     fontSize: 10,
-    color: '#666',
+    color: 'rgba(255,255,255,0.6)',
     textAlign: 'center',
   },
   sentimentRow: {
@@ -694,11 +693,11 @@ const styles = StyleSheet.create({
   sentimentHotel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: '#fff',
   },
   sentimentReviews: {
     fontSize: 12,
-    color: '#999',
+    color: 'rgba(255,255,255,0.4)',
   },
   sentimentBar: {
     flexDirection: 'row',
@@ -727,7 +726,7 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 12,
-    color: '#666',
+    color: 'rgba(255,255,255,0.6)',
   },
   scoreTable: {
     minWidth: width - 40,
@@ -746,7 +745,7 @@ const styles = StyleSheet.create({
   scoreHeaderText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#333',
+    color: '#fff',
   },
   scoreRow: {
     flexDirection: 'row',
@@ -759,7 +758,7 @@ const styles = StyleSheet.create({
   scoreHotelName: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#333',
+    color: '#fff',
   },
   scoreCell: {
     width: 60,
@@ -790,8 +789,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginRight: 10,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    backgroundColor: '#fff',
+    borderColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   platformButtonActive: {
     backgroundColor: '#10B981',
@@ -799,24 +798,24 @@ const styles = StyleSheet.create({
   },
   platformText: {
     fontSize: 14,
-    color: '#666',
+    color: 'rgba(255,255,255,0.6)',
     fontWeight: '500',
   },
   platformTextActive: {
     color: '#fff',
   },
   priceCard: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: 'rgba(255,255,255,0.04)',
     borderRadius: 15,
     padding: 15,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   priceHotelName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#333',
+    color: '#fff',
     marginBottom: 15,
   },
   priceGrid: {
@@ -832,13 +831,13 @@ const styles = StyleSheet.create({
   },
   pricePlatform: {
     fontSize: 12,
-    color: '#666',
+    color: 'rgba(255,255,255,0.6)',
     marginBottom: 5,
   },
   priceValue: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#333',
+    color: '#fff',
     marginBottom: 10,
   },
   bookButton: {

@@ -25,7 +25,7 @@ export default function ForgotPasswordScreen() {
 
   return (
     <LinearGradient
-      colors={['#667eea', '#764ba2']}
+      colors={['#0f0c29', '#302b63', '#24243e']}
       style={styles.container}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   nextText: {
-    color: '#667eea',
+    color: '#a78bfa',
     fontSize: 18,
     fontWeight: '700',
   },

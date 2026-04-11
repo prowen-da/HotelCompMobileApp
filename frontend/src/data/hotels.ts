@@ -37,19 +37,19 @@ export const categories = [
   { id: 'luxury', name: 'Luxury', gradient: ['#667eea', '#764ba2'] as [string, string], accent: '#667eea', icon: 'diamond' },
   { id: 'budget', name: 'Budget', gradient: ['#11998e', '#38ef7d'] as [string, string], accent: '#11998e', icon: 'wallet' },
   { id: 'business', name: 'Business', gradient: ['#2193b0', '#6dd5ed'] as [string, string], accent: '#2193b0', icon: 'briefcase' },
-  { id: 'romantic', name: 'Romantic', gradient: ['#ee0979', '#ff6a00'] as [string, string], accent: '#ee0979', icon: 'heart' },
-  { id: 'family', name: 'Family', gradient: ['#fc4a1a', '#f7b733'] as [string, string], accent: '#fc4a1a', icon: 'people' },
-  { id: 'adventure', name: 'Adventure', gradient: ['#FF416C', '#FF4B2B'] as [string, string], accent: '#FF416C', icon: 'compass' },
+  { id: 'romantic', name: 'Romantic', gradient: ['#a78bfa', '#c084fc'] as [string, string], accent: '#a78bfa', icon: 'heart' },
+  { id: 'family', name: 'Family', gradient: ['#F5A623', '#FFD700'] as [string, string], accent: '#F5A623', icon: 'people' },
+  { id: 'adventure', name: 'Adventure', gradient: ['#ef4444', '#f87171'] as [string, string], accent: '#ef4444', icon: 'compass' },
   { id: 'wellness', name: 'Wellness', gradient: ['#1D976C', '#93F9B9'] as [string, string], accent: '#1D976C', icon: 'leaf' },
 ];
 
 export const categoryColors: { [key: string]: { gradient: [string, string]; accent: string } } = {
   luxury: { gradient: ['#667eea', '#764ba2'], accent: '#667eea' },
   budget: { gradient: ['#11998e', '#38ef7d'], accent: '#11998e' },
-  family: { gradient: ['#fc4a1a', '#f7b733'], accent: '#fc4a1a' },
-  romantic: { gradient: ['#ee0979', '#ff6a00'], accent: '#ee0979' },
+  family: { gradient: ['#F5A623', '#FFD700'], accent: '#F5A623' },
+  romantic: { gradient: ['#a78bfa', '#c084fc'], accent: '#a78bfa' },
   business: { gradient: ['#2193b0', '#6dd5ed'], accent: '#2193b0' },
-  adventure: { gradient: ['#FF416C', '#FF4B2B'], accent: '#FF416C' },
+  adventure: { gradient: ['#ef4444', '#f87171'], accent: '#ef4444' },
   wellness: { gradient: ['#1D976C', '#93F9B9'], accent: '#1D976C' },
 };
 
@@ -88,7 +88,7 @@ export const hotels: Hotel[] = [
   {
     id: 3, name: 'Family Fun Resort', location: 'Central Park, New York', price: 155, rating: 4.5, reviews: 3210,
     amenities: ['wifi', 'restaurant', 'fitness-center'], image: 'hotel3', category: 'family', petFriendly: true,
-    gradient: ['#fc4a1a', '#f7b733'], accent: '#fc4a1a',
+    gradient: ['#F5A623', '#FFD700'], accent: '#F5A623',
     amenityScores: { cleanliness: 8.5, service: 8.8, location: 8.2, value: 8.0, comfort: 8.7 },
     features: { wifi: true, pool: true, gym: true, spa: false, parking: true, restaurant: true, petFriendly: true, bar: false, roomService: true, laundry: true },
     tripMatch: { family: 96, business: 45, friends: 70, solo: 55, pets: 88 },
@@ -97,7 +97,7 @@ export const hotels: Hotel[] = [
   {
     id: 4, name: 'Royal Romance Suites', location: 'Times Square, New York', price: 195, rating: 4.8, reviews: 4521,
     amenities: ['wifi', 'restaurant', 'fitness-center', 'car', 'cafe'], image: 'hotel4', category: 'romantic', petFriendly: false,
-    gradient: ['#ee0979', '#ff6a00'], accent: '#ee0979',
+    gradient: ['#a78bfa', '#c084fc'], accent: '#a78bfa',
     amenityScores: { cleanliness: 9.0, service: 9.4, location: 9.2, value: 8.0, comfort: 9.5 },
     features: { wifi: true, pool: true, gym: false, spa: true, parking: true, restaurant: true, petFriendly: false, bar: true, roomService: true, laundry: true },
     tripMatch: { family: 50, business: 60, friends: 75, solo: 70, pets: 15 },
@@ -115,7 +115,7 @@ export const hotels: Hotel[] = [
   {
     id: 6, name: 'Adventure Base Camp', location: 'Upper East Side, New York', price: 125, rating: 4.7, reviews: 2890,
     amenities: ['wifi', 'restaurant', 'fitness-center'], image: 'hotel6', category: 'adventure', petFriendly: true,
-    gradient: ['#FF416C', '#FF4B2B'], accent: '#FF416C',
+    gradient: ['#ef4444', '#f87171'], accent: '#ef4444',
     amenityScores: { cleanliness: 8.0, service: 8.2, location: 7.8, value: 8.8, comfort: 7.5 },
     features: { wifi: true, pool: false, gym: true, spa: false, parking: true, restaurant: true, petFriendly: true, bar: true, roomService: false, laundry: false },
     tripMatch: { family: 65, business: 30, friends: 92, solo: 90, pets: 85 },
@@ -151,7 +151,7 @@ export const hotels: Hotel[] = [
   {
     id: 10, name: 'Kids Paradise Hotel', location: 'Upper West Side, New York', price: 145, rating: 4.3, reviews: 1432,
     amenities: ['wifi', 'cafe', 'restaurant'], image: 'hotel10', category: 'family', petFriendly: true,
-    gradient: ['#fc4a1a', '#f7b733'], accent: '#fc4a1a',
+    gradient: ['#F5A623', '#FFD700'], accent: '#F5A623',
     amenityScores: { cleanliness: 8.2, service: 8.5, location: 7.8, value: 8.2, comfort: 8.5 },
     features: { wifi: true, pool: true, gym: false, spa: false, parking: true, restaurant: true, petFriendly: true, bar: false, roomService: true, laundry: true },
     tripMatch: { family: 94, business: 30, friends: 55, solo: 45, pets: 92 },
@@ -169,7 +169,7 @@ export const hotels: Hotel[] = [
   {
     id: 12, name: 'Honeymoon Haven', location: 'Tribeca, New York', price: 225, rating: 4.8, reviews: 4123,
     amenities: ['wifi', 'restaurant', 'fitness-center', 'car', 'cafe'], image: 'hotel12', category: 'romantic', petFriendly: false,
-    gradient: ['#ee0979', '#ff6a00'], accent: '#ee0979',
+    gradient: ['#a78bfa', '#c084fc'], accent: '#a78bfa',
     amenityScores: { cleanliness: 9.2, service: 9.5, location: 8.8, value: 7.5, comfort: 9.6 },
     features: { wifi: true, pool: true, gym: false, spa: true, parking: true, restaurant: true, petFriendly: false, bar: true, roomService: true, laundry: true },
     tripMatch: { family: 45, business: 50, friends: 65, solo: 60, pets: 10 },
@@ -178,7 +178,7 @@ export const hotels: Hotel[] = [
   {
     id: 13, name: 'Extreme Sports Lodge', location: 'East Village, New York', price: 115, rating: 4.5, reviews: 987,
     amenities: ['wifi', 'cafe', 'fitness-center'], image: 'hotel13', category: 'adventure', petFriendly: true,
-    gradient: ['#FF416C', '#FF4B2B'], accent: '#FF416C',
+    gradient: ['#ef4444', '#f87171'], accent: '#ef4444',
     amenityScores: { cleanliness: 7.8, service: 8.0, location: 8.5, value: 9.0, comfort: 7.5 },
     features: { wifi: true, pool: false, gym: true, spa: false, parking: false, restaurant: false, petFriendly: true, bar: true, roomService: false, laundry: false },
     tripMatch: { family: 50, business: 25, friends: 95, solo: 88, pets: 80 },

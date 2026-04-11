@@ -17,19 +17,20 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
   withDelay,
+  withRepeat,
   withSequence,
   withTiming,
+  Easing,
   FadeInDown,
   FadeInUp,
   SlideInRight,
   ZoomIn,
 } from 'react-native-reanimated';
 
-const { width } = Dimensions.get('window');
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 const stats = [
-  { label: 'Bookings', value: '24', icon: 'calendar' },
+  { label: 'Compared', value: '24', icon: 'git-compare' },
   { label: 'Reviews', value: '18', icon: 'star' },
   { label: 'Saved', value: '42', icon: 'heart' },
 ];
@@ -39,8 +40,8 @@ const menuSections = [
     title: 'Account',
     items: [
       { icon: 'person-outline', label: 'Edit Profile', route: null, color: '#667eea' },
-      { icon: 'heart-outline', label: 'Favorites', route: '/(main)/favorites', color: '#ee0979' },
-      { icon: 'notifications-outline', label: 'Notifications', route: '/(main)/notifications', color: '#fc4a1a' },
+      { icon: 'heart-outline', label: 'Favorites', route: '/(main)/favorites', color: '#a78bfa' },
+      { icon: 'notifications-outline', label: 'Notifications', route: '/(main)/notifications', color: '#F5A623' },
       { icon: 'card-outline', label: 'Payment Methods', route: null, color: '#11998e' },
     ],
   },
@@ -49,7 +50,7 @@ const menuSections = [
     items: [
       { icon: 'settings-outline', label: 'Settings', route: '/(main)/settings', color: '#2193b0' },
       { icon: 'globe-outline', label: 'Language', route: null, color: '#764ba2' },
-      { icon: 'moon-outline', label: 'Dark Mode', route: null, color: '#333' },
+      { icon: 'moon-outline', label: 'Dark Mode', route: null, color: '#6dd5ed' },
     ],
   },
   {
@@ -57,7 +58,7 @@ const menuSections = [
     items: [
       { icon: 'help-circle-outline', label: 'Help Center', route: null, color: '#38ef7d' },
       { icon: 'shield-checkmark-outline', label: 'Privacy Policy', route: null, color: '#6dd5ed' },
-      { icon: 'log-out-outline', label: 'Log Out', route: null, color: '#FF416C' },
+      { icon: 'log-out-outline', label: 'Log Out', route: null, color: '#ef4444' },
     ],
   },
 ];
@@ -65,74 +66,74 @@ const menuSections = [
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const avatarScale = useSharedValue(0);
+  const glowOpacity = useSharedValue(0.3);
 
   useEffect(() => {
     avatarScale.value = withDelay(300, withSpring(1, { damping: 12 }));
+    glowOpacity.value = withRepeat(
+      withSequence(withTiming(0.5, { duration: 2500 }), withTiming(0.25, { duration: 2500 })),
+      -1, true
+    );
   }, []);
 
   const avatarStyle = useAnimatedStyle(() => ({
     transform: [{ scale: avatarScale.value }],
   }));
+  const glowStyle = useAnimatedStyle(() => ({ opacity: glowOpacity.value }));
 
   return (
-    <View style={styles.container}>
-      <LinearGradient
-        colors={['#667eea', '#764ba2']}
-        style={[styles.header, { paddingTop: insets.top + 10 }]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+    <LinearGradient colors={['#0f0c29', '#302b63', '#24243e']} style={styles.container}>
+      <Animated.View style={[styles.orb, styles.orb1, glowStyle]} />
+      <Animated.View style={[styles.orb, styles.orb2, glowStyle]} />
+
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 30 }]}
+        showsVerticalScrollIndicator={false}
       >
+        {/* Header */}
         <Animated.View entering={FadeInDown.springify()} style={styles.headerTop}>
           <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <BlurView intensity={30} style={styles.backBtnBlur}>
-              <Ionicons name="arrow-back" size={24} color="#fff" />
+            <BlurView intensity={25} style={styles.backBtnBlur} tint="dark">
+              <Ionicons name="arrow-back" size={22} color="#fff" />
             </BlurView>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Profile</Text>
           <TouchableOpacity style={styles.editBtn}>
-            <Ionicons name="create-outline" size={22} color="#fff" />
+            <Ionicons name="create-outline" size={22} color="rgba(255,255,255,0.6)" />
           </TouchableOpacity>
         </Animated.View>
 
-        <Animated.View style={[styles.avatarContainer, avatarStyle]}>
-          <LinearGradient
-            colors={['rgba(255,255,255,0.3)', 'rgba(255,255,255,0.1)']}
-            style={styles.avatarRing}
-          >
-            <View style={styles.avatar}>
-              <Ionicons name="person" size={50} color="#667eea" />
-            </View>
-          </LinearGradient>
-          <Animated.Text entering={FadeInUp.delay(400)} style={styles.userName}>
-            Alex Johnson
-          </Animated.Text>
-          <Animated.Text entering={FadeInUp.delay(500)} style={styles.userEmail}>
-            alex.johnson@email.com
-          </Animated.Text>
-        </Animated.View>
-
-        <Animated.View entering={FadeInUp.delay(500)} style={styles.statsRow}>
-          {stats.map((stat, i) => (
-            <Animated.View
-              key={stat.label}
-              entering={ZoomIn.delay(600 + i * 100)}
-              style={styles.statItem}
+        {/* Avatar Card */}
+        <Animated.View entering={FadeInUp.delay(200).springify()} style={styles.avatarCard}>
+          <Animated.View style={[styles.avatarRing, avatarStyle]}>
+            <LinearGradient
+              colors={['#667eea', '#764ba2']}
+              style={styles.avatarGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
             >
-              <BlurView intensity={25} style={styles.statBlur}>
-                <Ionicons name={stat.icon as any} size={18} color="#FFD700" />
-                <Text style={styles.statValue}>{stat.value}</Text>
-                <Text style={styles.statLabel}>{stat.label}</Text>
-              </BlurView>
-            </Animated.View>
-          ))}
-        </Animated.View>
-      </LinearGradient>
+              <View style={styles.avatarInner}>
+                <Ionicons name="person" size={40} color="#667eea" />
+              </View>
+            </LinearGradient>
+          </Animated.View>
+          <Animated.Text entering={FadeInUp.delay(400)} style={styles.userName}>Alex Johnson</Animated.Text>
+          <Animated.Text entering={FadeInUp.delay(500)} style={styles.userEmail}>alex.johnson@email.com</Animated.Text>
 
-      <ScrollView
-        style={styles.content}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 30 }}
-        showsVerticalScrollIndicator={false}
-      >
+          <Animated.View entering={FadeInUp.delay(500)} style={styles.statsRow}>
+            {stats.map((stat, i) => (
+              <Animated.View key={stat.label} entering={ZoomIn.delay(600 + i * 100)} style={styles.statItem}>
+                <View style={styles.statBox}>
+                  <Ionicons name={stat.icon as any} size={16} color="#FFD700" />
+                  <Text style={styles.statValue}>{stat.value}</Text>
+                  <Text style={styles.statLabel}>{stat.label}</Text>
+                </View>
+              </Animated.View>
+            ))}
+          </Animated.View>
+        </Animated.View>
+
+        {/* Menu Sections */}
         {menuSections.map((section, sIdx) => (
           <Animated.View
             key={section.title}
@@ -145,113 +146,81 @@ export default function ProfileScreen() {
                 <AnimatedTouchable
                   key={item.label}
                   entering={SlideInRight.delay(800 + sIdx * 150 + idx * 80)}
-                  style={[
-                    styles.menuItem,
-                    idx < section.items.length - 1 && styles.menuItemBorder,
-                  ]}
+                  style={[styles.menuItem, idx < section.items.length - 1 && styles.menuItemBorder]}
                   onPress={() => item.route && router.push(item.route as any)}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.menuIconWrap, { backgroundColor: item.color + '15' }]}>
+                  <View style={[styles.menuIconWrap, { backgroundColor: item.color + '20' }]}>
                     <Ionicons name={item.icon as any} size={20} color={item.color} />
                   </View>
                   <Text style={styles.menuLabel}>{item.label}</Text>
-                  <Ionicons name="chevron-forward" size={18} color="#ccc" />
+                  <Ionicons name="chevron-forward" size={18} color="rgba(255,255,255,0.25)" />
                 </AnimatedTouchable>
               ))}
             </View>
           </Animated.View>
         ))}
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  header: { paddingBottom: 25 },
+  container: { flex: 1 },
+  orb: { position: 'absolute', borderRadius: 999 },
+  orb1: { width: 200, height: 200, top: -50, right: -60, backgroundColor: '#667eea' },
+  orb2: { width: 140, height: 140, bottom: 120, left: -40, backgroundColor: '#764ba2' },
+  scrollContent: { paddingHorizontal: 20 },
   headerTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 15,
-    marginBottom: 20,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20,
   },
-  backBtn: { width: 45, height: 45, borderRadius: 15, overflow: 'hidden' },
+  backBtn: { width: 42, height: 42, borderRadius: 14, overflow: 'hidden' },
   backBtnBlur: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.08)',
   },
   headerTitle: { fontSize: 18, fontWeight: '700', color: '#fff' },
   editBtn: { padding: 10 },
-  avatarContainer: { alignItems: 'center', marginBottom: 20 },
-  avatarRing: {
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
+  avatarCard: {
+    backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 24,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
+    padding: 24, alignItems: 'center', marginBottom: 24,
   },
-  avatar: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
+  avatarRing: { marginBottom: 14 },
+  avatarGradient: {
+    width: 96, height: 96, borderRadius: 48,
+    justifyContent: 'center', alignItems: 'center',
+  },
+  avatarInner: {
+    width: 84, height: 84, borderRadius: 42,
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    justifyContent: 'center', alignItems: 'center',
   },
   userName: { fontSize: 22, fontWeight: '800', color: '#fff' },
-  userEmail: { fontSize: 14, color: 'rgba(255,255,255,0.75)', marginTop: 4 },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 12,
-    paddingHorizontal: 20,
-  },
-  statItem: { flex: 1, borderRadius: 16, overflow: 'hidden' },
-  statBlur: {
-    alignItems: 'center',
-    paddingVertical: 14,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    gap: 4,
+  userEmail: { fontSize: 14, color: 'rgba(255,255,255,0.5)', marginTop: 4, marginBottom: 20 },
+  statsRow: { flexDirection: 'row', gap: 12, width: '100%' },
+  statItem: { flex: 1 },
+  statBox: {
+    backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 16,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
+    alignItems: 'center', paddingVertical: 14, gap: 4,
   },
   statValue: { fontSize: 20, fontWeight: '800', color: '#fff' },
-  statLabel: { fontSize: 11, color: 'rgba(255,255,255,0.7)' },
-  content: { flex: 1, paddingHorizontal: 20, paddingTop: 20 },
+  statLabel: { fontSize: 11, color: 'rgba(255,255,255,0.4)' },
   menuSection: { marginBottom: 20 },
   sectionTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#999',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 10,
-    marginLeft: 5,
+    fontSize: 12, fontWeight: '700', color: 'rgba(255,255,255,0.35)',
+    textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10, marginLeft: 5,
   },
   menuCard: {
-    backgroundColor: '#fff',
-    borderRadius: 18,
-    overflow: 'hidden',
-    boxShadow: '0px 2px 8px rgba(0,0,0,0.06)',
-    elevation: 3,
+    backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 20,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', overflow: 'hidden',
   },
   menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16,
   },
-  menuItemBorder: { borderBottomWidth: 1, borderBottomColor: '#f5f5f5' },
+  menuItemBorder: { borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' },
   menuIconWrap: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 14,
+    width: 38, height: 38, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 14,
   },
-  menuLabel: { flex: 1, fontSize: 15, fontWeight: '500', color: '#333' },
+  menuLabel: { flex: 1, fontSize: 15, fontWeight: '500', color: '#fff' },
 });

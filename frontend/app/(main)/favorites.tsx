@@ -30,10 +30,10 @@ const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 const savedHotels = [
   { id: 1, name: 'The Grand Palace Hotel', location: 'Downtown, New York', price: 245, rating: 4.9, category: 'luxury', gradient: ['#667eea', '#764ba2'] },
-  { id: 4, name: 'Royal Romance Suites', location: 'Times Square, New York', price: 195, rating: 4.8, category: 'romantic', gradient: ['#ee0979', '#ff6a00'] },
+  { id: 4, name: 'Royal Romance Suites', location: 'Times Square, New York', price: 195, rating: 4.8, category: 'romantic', gradient: ['#a78bfa', '#c084fc'] },
   { id: 7, name: 'Serenity Spa Resort', location: 'Chelsea, New York', price: 175, rating: 4.4, category: 'wellness', gradient: ['#1D976C', '#93F9B9'] },
   { id: 8, name: 'The Ritz Platinum', location: 'Battery Park, New York', price: 320, rating: 4.9, category: 'luxury', gradient: ['#667eea', '#764ba2'] },
-  { id: 6, name: 'Adventure Base Camp', location: 'Upper East Side, New York', price: 125, rating: 4.7, category: 'adventure', gradient: ['#FF416C', '#FF4B2B'] },
+  { id: 6, name: 'Adventure Base Camp', location: 'Upper East Side, New York', price: 125, rating: 4.7, category: 'adventure', gradient: ['#ef4444', '#f87171'] },
 ];
 
 const FavoriteCard = ({ hotel, index }: { hotel: typeof savedHotels[0]; index: number }) => {
@@ -102,7 +102,7 @@ export default function FavoritesScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#ee0979', '#ff6a00']}
+        colors={['#a78bfa', '#c084fc']}
         style={[styles.header, { paddingTop: insets.top + 10 }]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -137,7 +137,7 @@ export default function FavoritesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  container: { flex: 1, backgroundColor: '#0f0c29' },
   header: { paddingBottom: 20, paddingHorizontal: 15 },
   headerRow: {
     flexDirection: 'row',
@@ -156,12 +156,11 @@ const styles = StyleSheet.create({
   headerSub: { fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 2 },
   list: { flex: 1 },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 18,
     marginBottom: 14,
     overflow: 'hidden',
-    boxShadow: '0px 3px 8px rgba(0,0,0,0.08)',
-    elevation: 4,
+        
   },
   cardImage: {
     height: 120,
@@ -190,9 +189,9 @@ const styles = StyleSheet.create({
   },
   categoryTagText: { color: '#fff', fontSize: 10, fontWeight: '700', letterSpacing: 0.5 },
   cardBody: { padding: 14 },
-  cardName: { fontSize: 16, fontWeight: '700', color: '#333', marginBottom: 4 },
+  cardName: { fontSize: 16, fontWeight: '700', color: '#fff', marginBottom: 4 },
   cardLocationRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 10 },
-  cardLocation: { fontSize: 13, color: '#999' },
+  cardLocation: { fontSize: 13, color: 'rgba(255,255,255,0.4)' },
   cardFooter: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -207,7 +206,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     gap: 4,
   },
-  ratingText: { fontSize: 13, fontWeight: '700', color: '#333' },
+  ratingText: { fontSize: 13, fontWeight: '700', color: '#fff' },
   cardPrice: { fontSize: 20, fontWeight: '800' },
-  perNight: { fontSize: 13, fontWeight: '400', color: '#999' },
+  perNight: { fontSize: 13, fontWeight: '400', color: 'rgba(255,255,255,0.4)' },
 });

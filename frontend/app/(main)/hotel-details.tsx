@@ -72,8 +72,8 @@ const hotelData = {
   tripMatch: [
     { type: 'Business', icon: 'briefcase', score: 95, color: '#2193b0', reasons: ['Conference rooms', 'Fast WiFi', 'Business center'] },
     { type: 'Solo', icon: 'person', score: 88, color: '#667eea', reasons: ['Central location', 'Great workspace'] },
-    { type: 'Friends', icon: 'beer', score: 80, color: '#ee0979', reasons: ['Rooftop bar', 'Pool area'] },
-    { type: 'Family', icon: 'people', score: 72, color: '#fc4a1a', reasons: ['Spacious rooms', 'Restaurant'] },
+    { type: 'Friends', icon: 'beer', score: 80, color: '#a78bfa', reasons: ['Rooftop bar', 'Pool area'] },
+    { type: 'Family', icon: 'people', score: 72, color: '#F5A623', reasons: ['Spacious rooms', 'Restaurant'] },
     { type: 'Pets', icon: 'paw', score: 20, color: '#1D976C', reasons: ['Not pet friendly'] },
   ],
 };
@@ -93,7 +93,7 @@ const RatingBar = ({ score, maxScore = 10, color, delay }: { score: number; maxS
 };
 
 const barStyles = StyleSheet.create({
-  track: { height: 8, borderRadius: 4, backgroundColor: '#f0f0f0', flex: 1 },
+  track: { height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.04)', flex: 1 },
   fill: { height: 8, borderRadius: 4 },
 });
 
@@ -362,7 +362,7 @@ export default function HotelDetailsScreen() {
                       size={14}
                       color={trip.score > 50 ? trip.color : '#ccc'}
                     />
-                    <Text style={[styles.tripReasonText, trip.score <= 50 && { color: '#bbb' }]}>{r}</Text>
+                    <Text style={[styles.tripReasonText, trip.score <= 50 && { color: 'rgba(255,255,255,0.3)' }]}>{r}</Text>
                   </View>
                 ))}
               </View>
@@ -438,7 +438,7 @@ export default function HotelDetailsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  container: { flex: 1, backgroundColor: '#0f0c29' },
   imageContainer: { height: height * 0.3, position: 'relative' },
   imagePlaceholder: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   imageOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 100 },
@@ -457,11 +457,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'center', gap: 8,
   },
   indicator: { width: 8, height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.5)' },
-  indicatorActive: { width: 24, backgroundColor: '#fff' },
+  indicatorActive: { width: 24, backgroundColor: 'rgba(255,255,255,0.06)' },
   content: {
     flex: 1, marginTop: -30,
     borderTopLeftRadius: 30, borderTopRightRadius: 30,
-    backgroundColor: '#f5f5f5', paddingTop: 25,
+    backgroundColor: '#0f0c29', paddingTop: 25,
   },
   // Info Section
   infoSection: { paddingHorizontal: 20, marginBottom: 16 },
@@ -471,8 +471,8 @@ const styles = StyleSheet.create({
   categoryBadge: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 8 },
   categoryText: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
   petBadge: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  petText: { fontSize: 11, color: '#bbb' },
-  hotelName: { fontSize: 22, fontWeight: '800', color: '#333', marginBottom: 4 },
+  petText: { fontSize: 11, color: 'rgba(255,255,255,0.3)' },
+  hotelName: { fontSize: 22, fontWeight: '800', color: '#fff', marginBottom: 4 },
   locationRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   locationText: { fontSize: 14, fontWeight: '500' },
   ratingCircle: {
@@ -481,16 +481,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center', alignItems: 'center',
   },
   ratingBig: { fontSize: 18, fontWeight: '800', color: '#10B981' },
-  ratingSmall: { fontSize: 9, color: '#999' },
-  addressText: { fontSize: 13, color: '#999', marginBottom: 2 },
-  reviewCountText: { fontSize: 13, color: '#bbb' },
+  ratingSmall: { fontSize: 9, color: 'rgba(255,255,255,0.4)' },
+  addressText: { fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 2 },
+  reviewCountText: { fontSize: 13, color: 'rgba(255,255,255,0.3)' },
   // Sections
   section: {
-    backgroundColor: '#fff', borderRadius: 20, padding: 18, marginHorizontal: 15,
-    marginBottom: 14, boxShadow: '0px 2px 8px rgba(0,0,0,0.05)', elevation: 3,
+    backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 20, padding: 18, marginHorizontal: 15,
+    marginBottom: 14, 
   },
-  sectionTitle: { fontSize: 17, fontWeight: '700', color: '#333', marginBottom: 3 },
-  sectionSub: { fontSize: 12, color: '#999', marginBottom: 14 },
+  sectionTitle: { fontSize: 17, fontWeight: '700', color: '#fff', marginBottom: 3 },
+  sectionSub: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 },
   // Rating Bars
   ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
   ratingLabelCol: { flexDirection: 'row', alignItems: 'center', gap: 8, width: 110 },
@@ -501,46 +501,46 @@ const styles = StyleSheet.create({
   // Price Comparison
   priceHighlight: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    backgroundColor: '#f9f9f9', borderRadius: 14, padding: 14, marginBottom: 14,
+    backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 14, padding: 14, marginBottom: 14,
   },
-  priceHighlightLabel: { fontSize: 12, color: '#999', marginBottom: 2 },
+  priceHighlightLabel: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 2 },
   priceHighlightVal: { fontSize: 24, fontWeight: '800' },
-  perNightSmall: { fontSize: 13, fontWeight: '400', color: '#999' },
+  perNightSmall: { fontSize: 13, fontWeight: '400', color: 'rgba(255,255,255,0.4)' },
   priceSavings: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#10B98115', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10 },
   savingsText: { fontSize: 12, fontWeight: '600', color: '#10B981' },
   platformRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingVertical: 12, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: '#f5f5f5',
+    paddingVertical: 12, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)',
     borderRadius: 8, marginBottom: 2,
   },
   platformInfo: { flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 },
-  platformName: { fontSize: 14, fontWeight: '500', color: '#333' },
+  platformName: { fontSize: 14, fontWeight: '500', color: '#fff' },
   lowestTag: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 },
   lowestTagText: { color: '#fff', fontSize: 9, fontWeight: '800', letterSpacing: 0.3 },
   platformPriceCol: { flexDirection: 'row', alignItems: 'baseline' },
-  platformPrice: { fontSize: 18, fontWeight: '600', color: '#333' },
-  platformPerNight: { fontSize: 12, color: '#bbb', marginLeft: 2 },
+  platformPrice: { fontSize: 18, fontWeight: '600', color: '#fff' },
+  platformPerNight: { fontSize: 12, color: 'rgba(255,255,255,0.3)', marginLeft: 2 },
   // Trip Match
   tripCard: {
-    backgroundColor: '#f9f9f9', borderRadius: 14, padding: 14, marginBottom: 10,
+    backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 14, padding: 14, marginBottom: 10,
   },
   tripHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
   tripIconBox: { width: 34, height: 34, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
-  tripType: { flex: 1, fontSize: 14, fontWeight: '700', color: '#333' },
+  tripType: { flex: 1, fontSize: 14, fontWeight: '700', color: '#fff' },
   tripScore: { fontSize: 18, fontWeight: '800' },
   tripReasons: { marginTop: 8, gap: 4 },
   tripReasonRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  tripReasonText: { fontSize: 12, color: '#666' },
+  tripReasonText: { fontSize: 12, color: 'rgba(255,255,255,0.6)' },
   // Amenities
   amenitiesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   amenityChip: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: '#f9f9f9', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.04)', paddingHorizontal: 12, paddingVertical: 10, borderRadius: 12,
   },
   amenityIconWrap: { width: 32, height: 32, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
-  amenityLabel: { fontSize: 13, color: '#333', fontWeight: '500' },
+  amenityLabel: { fontSize: 13, color: '#fff', fontWeight: '500' },
   // Description
-  descriptionText: { fontSize: 14, color: '#666', lineHeight: 22, marginTop: 6 },
+  descriptionText: { fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 22, marginTop: 6 },
   // Bottom Bar
   bottomBar: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
@@ -551,10 +551,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20, paddingTop: 18, backgroundColor: 'rgba(255,255,255,0.92)',
   },
   bottomPriceCol: {},
-  bottomPriceLabel: { fontSize: 11, color: '#999' },
+  bottomPriceLabel: { fontSize: 11, color: 'rgba(255,255,255,0.4)' },
   bottomPriceRow: { flexDirection: 'row', alignItems: 'baseline' },
   bottomPriceVal: { fontSize: 26, fontWeight: '800' },
-  bottomPerNight: { fontSize: 13, color: '#999', marginLeft: 2 },
+  bottomPerNight: { fontSize: 13, color: 'rgba(255,255,255,0.4)', marginLeft: 2 },
   compareBtn: { borderRadius: 15, overflow: 'hidden' },
   compareBtnGradient: {
     flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 16, gap: 8,

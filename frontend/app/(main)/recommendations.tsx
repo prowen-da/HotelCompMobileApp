@@ -30,9 +30,9 @@ import Animated, {
 const { width } = Dimensions.get('window');
 
 const tripTypes = [
-  { id: 'family', label: 'Family', icon: 'people', gradient: ['#fc4a1a', '#f7b733'] as [string, string] },
+  { id: 'family', label: 'Family', icon: 'people', gradient: ['#F5A623', '#FFD700'] as [string, string] },
   { id: 'business', label: 'Business', icon: 'briefcase', gradient: ['#2193b0', '#6dd5ed'] as [string, string] },
-  { id: 'friends', label: 'Friends', icon: 'beer', gradient: ['#ee0979', '#ff6a00'] as [string, string] },
+  { id: 'friends', label: 'Friends', icon: 'beer', gradient: ['#a78bfa', '#c084fc'] as [string, string] },
   { id: 'solo', label: 'Solo', icon: 'person', gradient: ['#667eea', '#764ba2'] as [string, string] },
 ];
 
@@ -54,8 +54,8 @@ const allHotels = [
     match: { family: 55, business: 96, friends: 78, solo: 90 },
   },
   {
-    id: 3, name: 'Urban Nest', short: 'Urban', color: '#ee0979',
-    gradient: ['#ee0979', '#ff6a00'] as [string, string],
+    id: 3, name: 'Urban Nest', short: 'Urban', color: '#a78bfa',
+    gradient: ['#a78bfa', '#c084fc'] as [string, string],
     price: 120, rating: 4.2, reviews: 3210, petFriendly: true,
     scores: { cleanliness: 8.4, service: 7.5, location: 8.8, value: 8.0, comfort: 8.0 },
     features: { wifi: true, pool: false, gym: true, spa: false, parking: false, restaurant: true, petFriendly: true, bar: true },

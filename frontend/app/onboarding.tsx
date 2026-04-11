@@ -206,11 +206,20 @@ export default function OnboardingScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={onboardingData[currentIndex].gradient}
+        colors={['#0f0c29', '#302b63', '#24243e']}
         style={StyleSheet.absoluteFill}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       />
+      {/* Accent orb from slide gradient */}
+      <Animated.View style={[
+        { position: 'absolute', width: 220, height: 220, borderRadius: 110, opacity: 0.25, top: -30, right: -50 },
+        { backgroundColor: onboardingData[currentIndex].gradient[0] }
+      ]} />
+      <Animated.View style={[
+        { position: 'absolute', width: 160, height: 160, borderRadius: 80, opacity: 0.18, bottom: 80, left: -40 },
+        { backgroundColor: onboardingData[currentIndex].gradient[1] }
+      ]} />
 
       <Animated.View entering={FadeIn.delay(200)}>
         <TouchableOpacity
@@ -325,9 +334,9 @@ const styles = StyleSheet.create({
     height: height * 0.45,
     borderRadius: 30,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
   },
   blurContainer: {
     flex: 1,
@@ -365,7 +374,7 @@ const styles = StyleSheet.create({
   mockTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: '#fff',
   },
   mockContent: {
     flex: 1,
