@@ -125,7 +125,7 @@ function GradientBar({ value, maxValue, gradient, delay, label }: {
 const bs = StyleSheet.create({
   track: { height: 28, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.04)', overflow: 'hidden' },
   fill: { height: 28, borderRadius: 8, justifyContent: 'center', minWidth: 36 },
-  label: { color: '#fff', fontSize: 11, fontWeight: '800', paddingLeft: 10, textShadowColor: 'rgba(0,0,0,0.3)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 },
+  label: { color: '#fff', fontSize: 11, fontWeight: '800', paddingLeft: 10, textShadow: '0px 1px 2px rgba(0,0,0,0.3)' },
 });
 
 function VBarAnimated({ value, maxValue, color, gradient, delay }: {
