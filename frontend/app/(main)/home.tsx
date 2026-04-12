@@ -282,9 +282,9 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.quickText}>Map View</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.quickLink} onPress={() => router.push('/(main)/comparison')}>
-            <View style={[styles.quickIcon, { backgroundColor: 'rgba(238,9,121,0.15)' }]}>
-              <Ionicons name="bar-chart-outline" size={18} color="#a78bfa" />
+          <TouchableOpacity style={styles.quickLink} onPress={() => router.push('/(main)/comparison-detail')}>
+            <View style={[styles.quickIcon, { backgroundColor: 'rgba(167,139,250,0.15)' }]}>
+              <Ionicons name="git-compare-outline" size={18} color="#a78bfa" />
             </View>
             <Text style={styles.quickText}>Compare</Text>
           </TouchableOpacity>
