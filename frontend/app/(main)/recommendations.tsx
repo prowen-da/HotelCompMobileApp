@@ -27,6 +27,8 @@ import Animated, {
   ZoomIn,
 } from 'react-native-reanimated';
 
+import Svg, { Polygon, Line, Circle as SvgCircle, Text as SvgText } from 'react-native-svg';
+
 const { width } = Dimensions.get('window');
 const BAR_MAX = width - 150;
 
@@ -276,7 +278,7 @@ export default function RecommendationsScreen() {
           })}
         </Animated.View>
 
-        {/* ===== 2. PRICE COMPARISON ===== */}
+        {/* ===== 2. PRICE COMPARISON — RADAR CHART ===== */}
         <Animated.View entering={FadeInDown.delay(700)} style={styles.chartCard}>
           <View style={styles.chartHeader}>
             <View style={styles.chartTitleRow}>
@@ -300,38 +302,103 @@ export default function RecommendationsScreen() {
             </View>
           </View>
 
-          <View style={styles.priceChart}>
-            {sorted.map((h, i) => {
-              const isCheapest = h.price === minPrice;
-              return (
-                <View key={h.id} style={styles.priceCol}>
-                  <Text style={[styles.priceLabel, { color: isCheapest ? '#10b981' : h.color }]}>
-                    ${h.price}
-                  </Text>
-                  {isCheapest && (
-                    <View style={styles.cheapBadge}>
-                      <Text style={styles.cheapBadgeText}>BEST</Text>
+          {/* Radar Chart */}
+          {(() => {
+            const radarSize = Math.max(Math.min(width - 80, 260), 200);
+            const cx = radarSize / 2;
+            const cy = radarSize / 2;
+            const maxR = radarSize / 2 - 30;
+            const categories = scoreCategories;
+            const n = categories.length;
+            const angleStep = (2 * Math.PI) / n;
+
+            const getPoint = (val: number, maxVal: number, idx: number) => {
+              const r = (val / maxVal) * maxR;
+              const angle = idx * angleStep - Math.PI / 2;
+              return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
+            };
+
+            const gridLevels = [0.25, 0.5, 0.75, 1.0];
+
+            return (
+              <View style={styles.radarWrap}>
+                <Svg width={radarSize} height={radarSize}>
+                  {/* Grid circles */}
+                  {gridLevels.map((lvl, li) => (
+                    <SvgCircle
+                      key={lvl}
+                      cx={cx} cy={cy} r={maxR * lvl}
+                      fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth={1}
+                      strokeDasharray={li < gridLevels.length - 1 ? "4 4" : undefined}
+                    />
+                  ))}
+                  {/* Axis lines + labels */}
+                  {categories.map((cat, i) => {
+                    const outer = getPoint(10, 10, i);
+                    const labelPt = getPoint(12, 10, i);
+                    return (
+                      <React.Fragment key={cat.key}>
+                        <Line x1={cx} y1={cy} x2={outer.x} y2={outer.y} stroke="rgba(255,255,255,0.25)" strokeWidth={1} />
+                        <SvgText
+                          x={labelPt.x} y={labelPt.y}
+                          fill="rgba(255,255,255,0.85)" fontSize={11} fontWeight="700"
+                          textAnchor="middle" alignmentBaseline="middle"
+                        >
+                          {cat.label}
+                        </SvgText>
+                      </React.Fragment>
+                    );
+                  })}
+                  {/* Hotel polygons */}
+                  {sorted.map((h) => {
+                    const points = categories.map((cat, i) => {
+                      const pt = getPoint(h.scores[cat.key], 10, i);
+                      return `${pt.x},${pt.y}`;
+                    }).join(' ');
+                    return (
+                      <React.Fragment key={h.id}>
+                        <Polygon
+                          points={points}
+                          fill={h.color + '50'}
+                          stroke={h.color}
+                          strokeWidth={3}
+                        />
+                        {categories.map((cat, i) => {
+                          const pt = getPoint(h.scores[cat.key], 10, i);
+                          return (
+                            <SvgCircle key={`${h.id}-${cat.key}`} cx={pt.x} cy={pt.y} r={4.5} fill={h.color} stroke="#fff" strokeWidth={1} />
+                          );
+                        })}
+                      </React.Fragment>
+                    );
+                  })}
+                </Svg>
+
+                {/* Hotel Legend */}
+                <View style={styles.radarLegend}>
+                  {sorted.map((h) => (
+                    <View key={h.id} style={styles.radarLegendItem}>
+                      <View style={[styles.radarLegendDot, { backgroundColor: h.color }]} />
+                      <Text style={styles.radarLegendText}>{h.short}</Text>
+                      <Text style={[styles.radarLegendPrice, { color: h.price === minPrice ? '#10b981' : h.color }]}>
+                        ${h.price}
+                      </Text>
                     </View>
-                  )}
-                  <View style={styles.priceBarWrap}>
-                    <VBarAnimated value={h.price} maxValue={maxPrice * 1.1} color={h.color} gradient={h.gradient} delay={800 + i * 120} />
-                  </View>
-                  <View style={[styles.priceNameDot, { backgroundColor: h.color }]} />
-                  <Text style={styles.priceName}>{h.short}</Text>
+                  ))}
                 </View>
-              );
-            })}
-          </View>
+              </View>
+            );
+          })()}
         </Animated.View>
 
-        {/* ===== 3. AMENITY RATINGS ===== */}
+        {/* ===== 3. AMENITY RATINGS — HEATMAP ===== */}
         <Animated.View entering={FadeInDown.delay(900)} style={styles.chartCard}>
           <View style={styles.chartHeader}>
             <View style={styles.chartTitleRow}>
               <Ionicons name="star" size={18} color="#FFD700" />
               <Text style={styles.chartTitle}>Amenity Ratings</Text>
             </View>
-            <Text style={styles.chartSub}>Guest scores across categories (out of 10)</Text>
+            <Text style={styles.chartSub}>Guest scores heatmap (out of 10)</Text>
           </View>
 
           {/* Color Legend */}
@@ -340,6 +407,7 @@ export default function RecommendationsScreen() {
               { label: 'Excellent (9+)', color: '#10b981' },
               { label: 'Great (8+)', color: '#667eea' },
               { label: 'Good (7+)', color: '#F5A623' },
+              { label: 'Fair (<7)', color: '#ef4444' },
             ].map((q) => (
               <View key={q.label} style={styles.qualityLegendItem}>
                 <View style={[styles.qualityLegendDot, { backgroundColor: q.color }]} />
@@ -348,45 +416,72 @@ export default function RecommendationsScreen() {
             ))}
           </View>
 
-          {/* Hotel Legend */}
-          <View style={styles.legend}>
+          {/* Heatmap Header */}
+          <View style={styles.heatHeader}>
+            <View style={styles.heatLabelCol} />
             {sorted.map((h) => (
-              <View key={h.id} style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: h.color }]} />
-                <Text style={styles.legendText}>{h.short}</Text>
+              <View key={h.id} style={styles.heatHotelCol}>
+                <View style={[styles.heatHotelDot, { backgroundColor: h.color }]} />
+                <Text style={styles.heatHotelName} numberOfLines={1}>{h.short}</Text>
               </View>
             ))}
           </View>
 
-          {scoreCategories.map((cat, sIdx) => (
-            <Animated.View key={cat.key} entering={FadeInDown.delay(1000 + sIdx * 80)} style={styles.scoreBlock}>
-              <View style={styles.scoreLabelRow}>
-                <Ionicons name={cat.icon as any} size={14} color="rgba(255,255,255,0.5)" />
-                <Text style={styles.scoreLabel}>{cat.label}</Text>
-              </View>
-              {sorted.map((h, hIdx) => {
-                const val = h.scores[cat.key];
-                return (
-                  <View key={h.id} style={styles.scoreBarRow}>
-                    <View style={[styles.scoreDot, { backgroundColor: h.color }]} />
-                    <View style={{ flex: 1 }}>
-                      <GradientBar
-                        value={val} maxValue={10}
-                        gradient={qualityGradient(val)}
-                        delay={1000 + sIdx * 80 + hIdx * 40}
-                        label={val.toFixed(1)}
-                      />
+          {/* Heatmap Rows */}
+          {scoreCategories.map((cat, cIdx) => {
+            const scores = sorted.map((h) => h.scores[cat.key]);
+            const best = Math.max(...scores);
+            return (
+              <Animated.View key={cat.key} entering={FadeInDown.delay(1000 + cIdx * 80)} style={[styles.heatRow, cIdx % 2 === 0 && styles.heatRowAlt]}>
+                <View style={styles.heatLabelCol}>
+                  <Ionicons name={cat.icon as any} size={13} color="rgba(255,255,255,0.4)" />
+                  <Text style={styles.heatLabel}>{cat.label}</Text>
+                </View>
+                {sorted.map((h) => {
+                  const val = h.scores[cat.key];
+                  const isBest = val === best;
+                  const color = qualityColor(val);
+                  const intensity = Math.min(0.85, 0.2 + (val / 10) * 0.65);
+                  return (
+                    <View key={h.id} style={styles.heatHotelCol}>
+                      <View style={[
+                        styles.heatCell,
+                        { backgroundColor: color, opacity: intensity },
+                        isBest && styles.heatCellBest,
+                      ]}>
+                        <Text style={styles.heatCellText}>{val.toFixed(1)}</Text>
+                      </View>
+                      {isBest && (
+                        <View style={styles.heatBestDot}>
+                          <Ionicons name="trophy" size={8} color="#FFD700" />
+                        </View>
+                      )}
                     </View>
-                    <View style={[styles.qualityBadge, { backgroundColor: qualityColor(val) + '20' }]}>
-                      <Text style={[styles.qualityBadgeText, { color: qualityColor(val) }]}>
-                        {qualityLabel(val)}
-                      </Text>
-                    </View>
+                  );
+                })}
+              </Animated.View>
+            );
+          })}
+
+          {/* Average Row */}
+          <View style={[styles.heatRow, styles.heatAvgRow]}>
+            <View style={styles.heatLabelCol}>
+              <Ionicons name="stats-chart" size={13} color="rgba(255,255,255,0.6)" />
+              <Text style={[styles.heatLabel, { color: 'rgba(255,255,255,0.7)', fontWeight: '800' }]}>Avg</Text>
+            </View>
+            {sorted.map((h) => {
+              const avg = Object.values(h.scores).reduce((a, b) => a + b, 0) / 5;
+              const color = qualityColor(avg);
+              return (
+                <View key={h.id} style={styles.heatHotelCol}>
+                  <View style={[styles.heatCell, styles.heatCellAvg, { borderColor: color }]}>
+                    <Text style={[styles.heatCellAvgText, { color }]}>{avg.toFixed(1)}</Text>
                   </View>
-                );
-              })}
-            </Animated.View>
-          ))}
+                  <Text style={[styles.heatQLabel, { color }]}>{qualityLabel(avg)}</Text>
+                </View>
+              );
+            })}
+          </View>
         </Animated.View>
 
         {/* ===== 4. OVERALL SCORE ===== */}
@@ -568,6 +663,32 @@ const styles = StyleSheet.create({
   priceBarWrap: { width: '100%', height: 140, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.04)', justifyContent: 'flex-end', alignItems: 'center', overflow: 'hidden' },
   priceNameDot: { width: 6, height: 6, borderRadius: 3, marginTop: 4 },
   priceName: { fontSize: 10, color: 'rgba(255,255,255,0.45)', fontWeight: '600' },
+
+  // Radar Chart
+  radarWrap: { alignItems: 'center', marginTop: 4 },
+  radarLegend: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 12 },
+  radarLegendItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  radarLegendDot: { width: 10, height: 10, borderRadius: 5 },
+  radarLegendText: { fontSize: 11, color: 'rgba(255,255,255,0.55)', fontWeight: '500' },
+  radarLegendPrice: { fontSize: 12, fontWeight: '800' },
+
+  // Heatmap
+  heatHeader: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)', paddingBottom: 8, marginBottom: 4 },
+  heatLabelCol: { flex: 1.2, flexDirection: 'row', alignItems: 'center', gap: 5 },
+  heatHotelCol: { flex: 1, alignItems: 'center', gap: 2 },
+  heatHotelDot: { width: 8, height: 8, borderRadius: 4 },
+  heatHotelName: { fontSize: 9, fontWeight: '600', color: 'rgba(255,255,255,0.4)' },
+  heatRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6 },
+  heatRowAlt: { backgroundColor: 'rgba(255,255,255,0.015)' },
+  heatLabel: { fontSize: 11, color: 'rgba(255,255,255,0.45)', fontWeight: '500' },
+  heatCell: { width: 40, height: 32, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
+  heatCellBest: { borderWidth: 1.5, borderColor: 'rgba(255,215,0,0.5)' },
+  heatCellText: { color: '#fff', fontSize: 11, fontWeight: '800', textShadow: '0px 1px 2px rgba(0,0,0,0.4)' },
+  heatBestDot: { position: 'absolute', top: -2, right: 2 },
+  heatAvgRow: { marginTop: 8, paddingTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.08)' },
+  heatCellAvg: { width: 40, height: 32, borderRadius: 8, borderWidth: 2, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center' },
+  heatCellAvgText: { fontSize: 12, fontWeight: '900' },
+  heatQLabel: { fontSize: 8, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.3 },
 
   // Quality Legend
   qualityLegend: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 10 },
