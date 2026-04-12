@@ -28,6 +28,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
+const BAR_MAX = width - 150;
 
 const tripTypes = [
   { id: 'family', label: 'Family', icon: 'people', gradient: ['#F5A623', '#FFD700'] as [string, string] },
@@ -90,64 +91,87 @@ const featureList = [
   { key: 'bar', label: 'Bar', icon: 'wine' },
 ];
 
-const scoreLabels = ['Cleanliness', 'Service', 'Location', 'Value', 'Comfort'];
-const scoreKeys = ['cleanliness', 'service', 'location', 'value', 'comfort'] as const;
+const scoreCategories = [
+  { key: 'cleanliness', label: 'Cleanliness', icon: 'sparkles' },
+  { key: 'service', label: 'Service', icon: 'hand-left' },
+  { key: 'location', label: 'Location', icon: 'location' },
+  { key: 'value', label: 'Value', icon: 'cash' },
+  { key: 'comfort', label: 'Comfort', icon: 'bed' },
+] as const;
 
-// Animated horizontal bar
-const HBar = ({ value, maxValue, color, delay, showLabel }: { value: number; maxValue: number; color: string; delay: number; showLabel?: string }) => {
+// ── Helpers ────────────────────────────────────
+const qualityColor = (v: number) => v >= 9 ? '#10b981' : v >= 8 ? '#667eea' : v >= 7 ? '#F5A623' : '#ef4444';
+const qualityLabel = (v: number) => v >= 9 ? 'Excellent' : v >= 8 ? 'Great' : v >= 7 ? 'Good' : 'Fair';
+const qualityGradient = (v: number): [string, string] =>
+  v >= 9 ? ['#10b981', '#34d399'] : v >= 8 ? ['#667eea', '#818cf8'] : v >= 7 ? ['#F5A623', '#fbbf24'] : ['#ef4444', '#f87171'];
+
+// ── Animated Components (outside render for hooks rules) ──
+
+function GradientBar({ value, maxValue, gradient, delay, label }: {
+  value: number; maxValue: number; gradient: [string, string]; delay: number; label: string;
+}) {
   const w = useSharedValue(0);
-  useEffect(() => {
-    w.value = withDelay(delay, withSpring((value / maxValue) * 100, { damping: 14 }));
-  }, [value]);
-  const s = useAnimatedStyle(() => ({ width: `${w.value}%` }));
+  useEffect(() => { w.value = withDelay(delay, withSpring((value / maxValue) * BAR_MAX, { damping: 14 })); }, [value]);
+  const s = useAnimatedStyle(() => ({ width: w.value }));
   return (
-    <View style={barS.row}>
-      <View style={barS.track}>
-        <Animated.View style={[barS.fill, { backgroundColor: color }, s]}>
-          {showLabel && <Text style={barS.barLabel}>{showLabel}</Text>}
-        </Animated.View>
-      </View>
+    <View style={bs.track}>
+      <Animated.View style={[bs.fill, s]}>
+        <LinearGradient colors={gradient} style={[StyleSheet.absoluteFill, { borderRadius: 8 }]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} />
+        <Text style={bs.label}>{label}</Text>
+      </Animated.View>
     </View>
   );
-};
-const barS = StyleSheet.create({
-  row: { flex: 1 },
-  track: { height: 22, borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.06)', overflow: 'hidden' },
-  fill: { height: 22, borderRadius: 6, justifyContent: 'center', paddingHorizontal: 8, minWidth: 30 },
-  barLabel: { color: '#fff', fontSize: 10, fontWeight: '700' },
+}
+const bs = StyleSheet.create({
+  track: { height: 28, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.04)', overflow: 'hidden' },
+  fill: { height: 28, borderRadius: 8, justifyContent: 'center', minWidth: 36 },
+  label: { color: '#fff', fontSize: 11, fontWeight: '800', paddingLeft: 10, textShadowColor: 'rgba(0,0,0,0.3)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 },
 });
 
-// Vertical bar for price chart
-const VBar = ({ value, maxValue, color, delay, label, price }: { value: number; maxValue: number; color: string; delay: number; label: string; price: number }) => {
+function VBarAnimated({ value, maxValue, color, gradient, delay }: {
+  value: number; maxValue: number; color: string; gradient: [string, string]; delay: number;
+}) {
   const h = useSharedValue(0);
-  useEffect(() => {
-    h.value = withDelay(delay, withSpring((value / maxValue) * 100, { damping: 14 }));
-  }, [value]);
-  const s = useAnimatedStyle(() => ({ height: `${h.value}%` }));
+  useEffect(() => { h.value = withDelay(delay, withSpring((value / maxValue) * 140, { damping: 14 })); }, [value]);
+  const s = useAnimatedStyle(() => ({ height: h.value }));
   return (
-    <View style={vbarS.col}>
-      <Text style={[vbarS.priceLabel, { color }]}>${price}</Text>
-      <View style={vbarS.barWrap}>
-        <Animated.View style={[vbarS.bar, { backgroundColor: color }, s]} />
-      </View>
-      <Text style={vbarS.name}>{label}</Text>
+    <Animated.View style={[{ width: '80%', borderRadius: 10, overflow: 'hidden', minHeight: 4 }, s]}>
+      <LinearGradient colors={gradient} style={StyleSheet.absoluteFill} start={{ x: 0, y: 1 }} end={{ x: 0, y: 0 }} />
+    </Animated.View>
+  );
+}
+
+function ProgressRing({ value, maxValue, color, size }: { value: number; maxValue: number; color: string; size: number }) {
+  const progress = (value / maxValue) * 100;
+  const strokeWidth = 4;
+  const radius = (size - strokeWidth) / 2;
+  return (
+    <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{
+        width: size, height: size, borderRadius: size / 2,
+        borderWidth: strokeWidth, borderColor: 'rgba(255,255,255,0.06)',
+        position: 'absolute',
+      }} />
+      <View style={{
+        width: size, height: size, borderRadius: size / 2,
+        borderWidth: strokeWidth, borderColor: color,
+        borderTopColor: progress > 75 ? color : 'rgba(255,255,255,0.06)',
+        borderRightColor: progress > 50 ? color : 'rgba(255,255,255,0.06)',
+        borderBottomColor: progress > 25 ? color : 'rgba(255,255,255,0.06)',
+        position: 'absolute',
+        transform: [{ rotate: '-90deg' }],
+      }} />
     </View>
   );
-};
-const vbarS = StyleSheet.create({
-  col: { flex: 1, alignItems: 'center', gap: 6 },
-  priceLabel: { fontSize: 12, fontWeight: '800' },
-  barWrap: { width: '70%', height: 120, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.06)', justifyContent: 'flex-end', overflow: 'hidden' },
-  bar: { borderRadius: 8, width: '100%' },
-  name: { fontSize: 10, color: 'rgba(255,255,255,0.45)', fontWeight: '600', textAlign: 'center' },
-});
+}
 
+// ── Main Screen ───────────────────────────────
 export default function RecommendationsScreen() {
   const insets = useSafeAreaInsets();
   const [selectedTrip, setSelectedTrip] = useState('family');
   const [petFilter, setPetFilter] = useState(false);
-
   const glowOpacity = useSharedValue(0.3);
+
   useEffect(() => {
     glowOpacity.value = withRepeat(
       withSequence(withTiming(0.5, { duration: 2500 }), withTiming(0.3, { duration: 2500 })),
@@ -162,6 +186,7 @@ export default function RecommendationsScreen() {
 
   const tripInfo = tripTypes.find((t) => t.id === selectedTrip)!;
   const maxPrice = Math.max(...sorted.map((h) => h.price));
+  const minPrice = Math.min(...sorted.map((h) => h.price));
   const bestHotel = sorted[0];
 
   return (
@@ -192,14 +217,10 @@ export default function RecommendationsScreen() {
             const isActive = selectedTrip === t.id;
             return (
               <Animated.View key={t.id} entering={ZoomIn.delay(300 + i * 80)} style={{ flex: 1 }}>
-                <TouchableOpacity
-                  style={[styles.tripCard, isActive && styles.tripCardActive]}
-                  onPress={() => setSelectedTrip(t.id)}
-                  activeOpacity={0.8}
-                >
+                <TouchableOpacity style={[styles.tripCard, isActive && styles.tripCardActive]} onPress={() => setSelectedTrip(t.id)} activeOpacity={0.8}>
                   {isActive && <LinearGradient colors={t.gradient} style={StyleSheet.absoluteFill} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />}
                   <Ionicons name={t.icon as any} size={22} color={isActive ? '#fff' : 'rgba(255,255,255,0.5)'} />
-                  <Text style={[styles.tripLabel, isActive && styles.tripLabelActive]}>{t.label}</Text>
+                  <Text style={[styles.tripLbl, isActive && styles.tripLblActive]}>{t.label}</Text>
                 </TouchableOpacity>
               </Animated.View>
             );
@@ -208,10 +229,7 @@ export default function RecommendationsScreen() {
 
         {/* Pet toggle */}
         <Animated.View entering={FadeInUp.delay(400)}>
-          <TouchableOpacity
-            style={[styles.petToggle, petFilter && styles.petToggleOn]}
-            onPress={() => setPetFilter(!petFilter)}
-          >
+          <TouchableOpacity style={[styles.petToggle, petFilter && styles.petToggleOn]} onPress={() => setPetFilter(!petFilter)}>
             <Ionicons name="paw" size={16} color={petFilter ? '#1D976C' : 'rgba(255,255,255,0.4)'} />
             <Text style={[styles.petToggleText, petFilter && styles.petToggleTextOn]}>Travelling with pets</Text>
             <View style={[styles.petSwitch, petFilter && styles.petSwitchOn]}>
@@ -222,88 +240,115 @@ export default function RecommendationsScreen() {
       </Animated.View>
 
       {/* Charts */}
-      <ScrollView
-        style={styles.body}
-        contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 30 }}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* ===== 1. TRIP MATCH RANKING CHART ===== */}
+      <ScrollView style={styles.body} contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 30 }} showsVerticalScrollIndicator={false}>
+
+        {/* ===== 1. TRIP MATCH RANKING ===== */}
         <Animated.View entering={FadeInDown.delay(500)} style={styles.chartCard}>
           <View style={styles.chartHeader}>
-            <View>
+            <View style={styles.chartTitleRow}>
+              <Ionicons name="podium" size={18} color={tripInfo.gradient[0]} />
               <Text style={styles.chartTitle}>Trip Match Ranking</Text>
-              <Text style={styles.chartSub}>Best hotels for {tripInfo.label.toLowerCase()} trip</Text>
             </View>
-            <View style={[styles.bestPill, { backgroundColor: tripInfo.gradient[0] + '25' }]}>
-              <Ionicons name="trophy" size={12} color={tripInfo.gradient[0]} />
-              <Text style={[styles.bestPillText, { color: tripInfo.gradient[0] }]}>Best: {bestHotel?.short}</Text>
-            </View>
+            <Text style={styles.chartSub}>Best hotels for {tripInfo.label.toLowerCase()} trip</Text>
           </View>
-
-          {/* Legend */}
-          <View style={styles.legend}>
-            {sorted.map((h) => (
-              <View key={h.id} style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: h.color }]} />
-                <Text style={styles.legendText}>{h.short}</Text>
-              </View>
-            ))}
+          <View style={[styles.bestBadge, { backgroundColor: tripInfo.gradient[0] + '20' }]}>
+            <Ionicons name="trophy" size={14} color="#FFD700" />
+            <Text style={[styles.bestBadgeText, { color: tripInfo.gradient[0] }]}>#{1} {bestHotel?.short}</Text>
           </View>
 
           {sorted.map((h, i) => {
             const matchVal = (h.match as any)[selectedTrip];
+            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
             return (
-              <Animated.View key={h.id} entering={SlideInRight.delay(600 + i * 80)} style={styles.rankRow}>
-                <Text style={styles.rankNum}>#{i + 1}</Text>
-                <View style={[styles.rankDot, { backgroundColor: h.color }]} />
+              <Animated.View key={h.id} entering={SlideInRight.delay(600 + i * 100)} style={styles.rankRow}>
+                <Text style={styles.rankMedal}>{medal || `#${i + 1}`}</Text>
+                <View style={[styles.hotelDot, { backgroundColor: h.color }]} />
                 <Text style={styles.rankName}>{h.short}</Text>
-                <View style={styles.rankBarWrap}>
-                  <HBar value={matchVal} maxValue={100} color={h.color} delay={600 + i * 80} showLabel={`${matchVal}%`} />
+                <View style={{ flex: 1 }}>
+                  <GradientBar
+                    value={matchVal} maxValue={100}
+                    gradient={h.gradient} delay={600 + i * 100}
+                    label={`${matchVal}%`}
+                  />
                 </View>
               </Animated.View>
             );
           })}
         </Animated.View>
 
-        {/* ===== 2. PRICE COMPARISON CHART ===== */}
+        {/* ===== 2. PRICE COMPARISON ===== */}
         <Animated.View entering={FadeInDown.delay(700)} style={styles.chartCard}>
           <View style={styles.chartHeader}>
-            <View>
+            <View style={styles.chartTitleRow}>
+              <Ionicons name="cash" size={18} color="#10b981" />
               <Text style={styles.chartTitle}>Price Comparison</Text>
-              <Text style={styles.chartSub}>Lowest room price per night</Text>
             </View>
-            <View style={[styles.bestPill, { backgroundColor: '#10B98125' }]}>
-              <Ionicons name="trending-down" size={12} color="#10B981" />
-              <Text style={[styles.bestPillText, { color: '#10B981' }]}>
-                Best: ${Math.min(...sorted.map((h) => h.price))}
-              </Text>
+            <Text style={styles.chartSub}>Lowest room price per night</Text>
+          </View>
+
+          <View style={styles.priceInsightRow}>
+            <View style={[styles.insightPill, { backgroundColor: '#10b98120' }]}>
+              <Ionicons name="arrow-down" size={12} color="#10b981" />
+              <Text style={[styles.insightText, { color: '#10b981' }]}>Cheapest: ${minPrice}</Text>
+            </View>
+            <View style={[styles.insightPill, { backgroundColor: '#ef444420' }]}>
+              <Ionicons name="arrow-up" size={12} color="#ef4444" />
+              <Text style={[styles.insightText, { color: '#ef4444' }]}>Priciest: ${maxPrice}</Text>
+            </View>
+            <View style={[styles.insightPill, { backgroundColor: '#667eea20' }]}>
+              <Text style={[styles.insightText, { color: '#667eea' }]}>Spread: ${maxPrice - minPrice}</Text>
             </View>
           </View>
 
           <View style={styles.priceChart}>
-            {sorted.map((h, i) => (
-              <VBar
-                key={h.id}
-                value={h.price}
-                maxValue={maxPrice * 1.2}
-                color={h.color}
-                delay={800 + i * 100}
-                label={h.short}
-                price={h.price}
-              />
-            ))}
+            {sorted.map((h, i) => {
+              const isCheapest = h.price === minPrice;
+              return (
+                <View key={h.id} style={styles.priceCol}>
+                  <Text style={[styles.priceLabel, { color: isCheapest ? '#10b981' : h.color }]}>
+                    ${h.price}
+                  </Text>
+                  {isCheapest && (
+                    <View style={styles.cheapBadge}>
+                      <Text style={styles.cheapBadgeText}>BEST</Text>
+                    </View>
+                  )}
+                  <View style={styles.priceBarWrap}>
+                    <VBarAnimated value={h.price} maxValue={maxPrice * 1.1} color={h.color} gradient={h.gradient} delay={800 + i * 120} />
+                  </View>
+                  <View style={[styles.priceNameDot, { backgroundColor: h.color }]} />
+                  <Text style={styles.priceName}>{h.short}</Text>
+                </View>
+              );
+            })}
           </View>
         </Animated.View>
 
-        {/* ===== 3. AMENITY RATINGS CHART ===== */}
+        {/* ===== 3. AMENITY RATINGS ===== */}
         <Animated.View entering={FadeInDown.delay(900)} style={styles.chartCard}>
           <View style={styles.chartHeader}>
-            <View>
+            <View style={styles.chartTitleRow}>
+              <Ionicons name="star" size={18} color="#FFD700" />
               <Text style={styles.chartTitle}>Amenity Ratings</Text>
-              <Text style={styles.chartSub}>Guest scores across categories</Text>
             </View>
+            <Text style={styles.chartSub}>Guest scores across categories (out of 10)</Text>
           </View>
 
+          {/* Color Legend */}
+          <View style={styles.qualityLegend}>
+            {[
+              { label: 'Excellent (9+)', color: '#10b981' },
+              { label: 'Great (8+)', color: '#667eea' },
+              { label: 'Good (7+)', color: '#F5A623' },
+            ].map((q) => (
+              <View key={q.label} style={styles.qualityLegendItem}>
+                <View style={[styles.qualityLegendDot, { backgroundColor: q.color }]} />
+                <Text style={styles.qualityLegendText}>{q.label}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Hotel Legend */}
           <View style={styles.legend}>
             {sorted.map((h) => (
               <View key={h.id} style={styles.legendItem}>
@@ -313,46 +358,64 @@ export default function RecommendationsScreen() {
             ))}
           </View>
 
-          {scoreKeys.map((key, sIdx) => (
-            <Animated.View key={key} entering={FadeInDown.delay(1000 + sIdx * 60)} style={styles.scoreBlock}>
-              <Text style={styles.scoreLabel}>{scoreLabels[sIdx]}</Text>
-              {sorted.map((h, hIdx) => (
-                <View key={h.id} style={styles.scoreBarRow}>
-                  <View style={[styles.scoreDot, { backgroundColor: h.color }]} />
-                  <View style={styles.scoreBarWrap}>
-                    <HBar
-                      value={h.scores[key]}
-                      maxValue={10}
-                      color={h.color}
-                      delay={1000 + sIdx * 60 + hIdx * 40}
-                      showLabel={h.scores[key].toFixed(1)}
-                    />
+          {scoreCategories.map((cat, sIdx) => (
+            <Animated.View key={cat.key} entering={FadeInDown.delay(1000 + sIdx * 80)} style={styles.scoreBlock}>
+              <View style={styles.scoreLabelRow}>
+                <Ionicons name={cat.icon as any} size={14} color="rgba(255,255,255,0.5)" />
+                <Text style={styles.scoreLabel}>{cat.label}</Text>
+              </View>
+              {sorted.map((h, hIdx) => {
+                const val = h.scores[cat.key];
+                return (
+                  <View key={h.id} style={styles.scoreBarRow}>
+                    <View style={[styles.scoreDot, { backgroundColor: h.color }]} />
+                    <View style={{ flex: 1 }}>
+                      <GradientBar
+                        value={val} maxValue={10}
+                        gradient={qualityGradient(val)}
+                        delay={1000 + sIdx * 80 + hIdx * 40}
+                        label={val.toFixed(1)}
+                      />
+                    </View>
+                    <View style={[styles.qualityBadge, { backgroundColor: qualityColor(val) + '20' }]}>
+                      <Text style={[styles.qualityBadgeText, { color: qualityColor(val) }]}>
+                        {qualityLabel(val)}
+                      </Text>
+                    </View>
                   </View>
-                </View>
-              ))}
+                );
+              })}
             </Animated.View>
           ))}
         </Animated.View>
 
-        {/* ===== 4. OVERALL RATINGS COMPARISON ===== */}
+        {/* ===== 4. OVERALL SCORE ===== */}
         <Animated.View entering={FadeInDown.delay(1100)} style={styles.chartCard}>
-          <Text style={styles.chartTitle}>Overall Score</Text>
-          <Text style={[styles.chartSub, { marginBottom: 14 }]}>Average across all categories</Text>
+          <View style={styles.chartHeader}>
+            <View style={styles.chartTitleRow}>
+              <Ionicons name="ribbon" size={18} color="#a78bfa" />
+              <Text style={styles.chartTitle}>Overall Score</Text>
+            </View>
+            <Text style={styles.chartSub}>Average across all categories</Text>
+          </View>
 
           <View style={styles.overallGrid}>
             {sorted.map((h, i) => {
               const avg = Object.values(h.scores).reduce((a, b) => a + b, 0) / 5;
+              const color = qualityColor(avg);
               return (
-                <Animated.View key={h.id} entering={ZoomIn.delay(1200 + i * 100)} style={styles.overallItem}>
-                  <View style={[styles.overallCircle, { borderColor: h.color }]}>
-                    <Text style={[styles.overallVal, { color: h.color }]}>{avg.toFixed(1)}</Text>
+                <Animated.View key={h.id} entering={ZoomIn.delay(1200 + i * 120)} style={styles.overallItem}>
+                  <ProgressRing value={avg} maxValue={10} color={color} size={68} />
+                  <View style={styles.overallCenter}>
+                    <Text style={[styles.overallVal, { color }]}>{avg.toFixed(1)}</Text>
+                    <Text style={[styles.overallQuality, { color }]}>{qualityLabel(avg)}</Text>
                   </View>
                   <Text style={styles.overallName}>{h.short}</Text>
-                  <View style={styles.overallStars}>
+                  <View style={styles.overallMeta}>
                     <Ionicons name="star" size={10} color="#FFD700" />
                     <Text style={styles.overallRating}>{h.rating}</Text>
+                    <Text style={styles.overallReviews}> · {(h.reviews / 1000).toFixed(1)}k</Text>
                   </View>
-                  <Text style={styles.overallReviews}>{(h.reviews / 1000).toFixed(1)}k</Text>
                 </Animated.View>
               );
             })}
@@ -361,10 +424,14 @@ export default function RecommendationsScreen() {
 
         {/* ===== 5. FEATURE MATRIX ===== */}
         <Animated.View entering={FadeInDown.delay(1300)} style={styles.chartCard}>
-          <Text style={styles.chartTitle}>Feature Matrix</Text>
-          <Text style={[styles.chartSub, { marginBottom: 14 }]}>Side-by-side amenity comparison</Text>
+          <View style={styles.chartHeader}>
+            <View style={styles.chartTitleRow}>
+              <Ionicons name="checkmark-done" size={18} color="#6dd5ed" />
+              <Text style={styles.chartTitle}>Feature Matrix</Text>
+            </View>
+            <Text style={styles.chartSub}>Side-by-side amenity comparison</Text>
+          </View>
 
-          {/* Matrix Header */}
           <View style={styles.matrixHeader}>
             <View style={styles.matrixLabelCol} />
             {sorted.map((h) => (
@@ -376,58 +443,66 @@ export default function RecommendationsScreen() {
           </View>
 
           {featureList.map((f, fIdx) => (
-            <Animated.View
-              key={f.key}
-              entering={SlideInRight.delay(1400 + fIdx * 50)}
-              style={[styles.matrixRow, fIdx % 2 === 0 && styles.matrixRowAlt]}
-            >
+            <Animated.View key={f.key} entering={SlideInRight.delay(1400 + fIdx * 60)} style={[styles.matrixRow, fIdx % 2 === 0 && styles.matrixRowAlt]}>
               <View style={styles.matrixLabelCol}>
-                <Ionicons name={f.icon as any} size={14} color="rgba(255,255,255,0.4)" />
+                <Ionicons name={f.icon as any} size={15} color="rgba(255,255,255,0.45)" />
                 <Text style={styles.matrixLabel}>{f.label}</Text>
               </View>
               {sorted.map((h) => (
                 <View key={h.id} style={styles.matrixHotelCol}>
                   {(h.features as any)[f.key] ? (
-                    <Ionicons name="checkmark-circle" size={20} color={h.color} />
+                    <View style={[styles.checkCircle, { backgroundColor: h.color + '20' }]}>
+                      <Ionicons name="checkmark" size={14} color={h.color} />
+                    </View>
                   ) : (
-                    <Ionicons name="close-circle" size={20} color="rgba(255,255,255,0.1)" />
+                    <View style={styles.xCircle}>
+                      <Ionicons name="close" size={12} color="rgba(255,255,255,0.15)" />
+                    </View>
                   )}
                 </View>
               ))}
             </Animated.View>
           ))}
 
-          {/* Feature count */}
-          <View style={styles.featureCountRow}>
+          {/* Feature count bar */}
+          <View style={styles.featureCountBar}>
             {sorted.map((h) => {
               const count = Object.values(h.features).filter(Boolean).length;
+              const total = Object.keys(h.features).length;
               return (
-                <View key={h.id} style={styles.featureCountCol}>
-                  <Text style={[styles.featureCountVal, { color: h.color }]}>{count}/{Object.keys(h.features).length}</Text>
+                <View key={h.id} style={styles.featureCountItem}>
+                  <View style={styles.featureCountRing}>
+                    <ProgressRing value={count} maxValue={total} color={h.color} size={44} />
+                    <Text style={[styles.featureCountVal, { color: h.color }]}>{count}</Text>
+                  </View>
+                  <Text style={styles.featureCountTotal}>of {total}</Text>
                 </View>
               );
             })}
           </View>
         </Animated.View>
 
-        {/* ===== 6. WINNER SUMMARY ===== */}
+        {/* ===== 6. WINNER PODIUM ===== */}
         <Animated.View entering={FadeInUp.delay(1500)} style={styles.winnerCard}>
           <LinearGradient colors={tripInfo.gradient} style={StyleSheet.absoluteFill} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
-          <Ionicons name="trophy" size={24} color="#FFD700" />
+          <Ionicons name="trophy" size={28} color="#FFD700" />
           <Text style={styles.winnerTitle}>Best for {tripInfo.label} Trip</Text>
-          <View style={styles.winnerRow}>
+
+          <View style={styles.podium}>
             {sorted.slice(0, 3).map((h, i) => {
               const matchVal = (h.match as any)[selectedTrip];
+              const heights = [100, 72, 56];
+              const medals = ['🥇', '🥈', '🥉'];
+              const order = [1, 0, 2]; // visual order: silver, gold, bronze
+              const idx = order[i];
               return (
-                <TouchableOpacity
-                  key={h.id}
-                  style={[styles.winnerItem, i === 0 && styles.winnerItemTop]}
-                  onPress={() => router.push(`/(main)/hotel-details?id=${h.id}`)}
-                >
-                  <Text style={styles.winnerRank}>{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</Text>
-                  <Text style={styles.winnerName}>{h.short}</Text>
-                  <Text style={styles.winnerMatch}>{matchVal}%</Text>
-                  <Text style={styles.winnerPrice}>${h.price}/n</Text>
+                <TouchableOpacity key={h.id} style={[styles.podiumCol, { order: idx }]} onPress={() => router.push(`/(main)/hotel-details?id=${h.id}`)} activeOpacity={0.8}>
+                  <Text style={styles.podiumMedal}>{medals[i]}</Text>
+                  <Text style={styles.podiumName}>{h.short}</Text>
+                  <Text style={styles.podiumMatch}>{matchVal}%</Text>
+                  <View style={[styles.podiumBar, { height: heights[i], backgroundColor: 'rgba(0,0,0,0.25)' }]}>
+                    <Text style={styles.podiumPrice}>${h.price}/n</Text>
+                  </View>
                 </TouchableOpacity>
               );
             })}
@@ -454,8 +529,8 @@ const styles = StyleSheet.create({
   tripGrid: { flexDirection: 'row', gap: 8, marginBottom: 14 },
   tripCard: { borderRadius: 14, paddingVertical: 14, alignItems: 'center', gap: 6, overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
   tripCardActive: { borderColor: 'transparent' },
-  tripLabel: { fontSize: 11, fontWeight: '600', color: 'rgba(255,255,255,0.4)' },
-  tripLabelActive: { color: '#fff' },
+  tripLbl: { fontSize: 11, fontWeight: '600', color: 'rgba(255,255,255,0.4)' },
+  tripLblActive: { color: '#fff' },
   petToggle: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
   petToggleOn: { borderColor: 'rgba(29,151,108,0.4)', backgroundColor: 'rgba(29,151,108,0.1)' },
   petToggleText: { flex: 1, fontSize: 13, color: 'rgba(255,255,255,0.4)' },
@@ -465,45 +540,68 @@ const styles = StyleSheet.create({
   petSwitchDot: { width: 16, height: 16, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.3)' },
   petSwitchDotOn: { backgroundColor: '#fff', alignSelf: 'flex-end' },
   body: { flex: 1 },
-  // Chart cards
-  chartCard: {
-    backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 20, padding: 16, marginBottom: 14,
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
-  },
-  chartHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 },
-  chartTitle: { fontSize: 16, fontWeight: '700', color: '#fff' },
-  chartSub: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 },
-  bestPill: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 },
-  bestPillText: { fontSize: 11, fontWeight: '700' },
-  // Legend
+
+  // Chart Cards
+  chartCard: { backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 20, padding: 18, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
+  chartHeader: { marginBottom: 14 },
+  chartTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
+  chartTitle: { fontSize: 17, fontWeight: '800', color: '#fff' },
+  chartSub: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginLeft: 26, marginTop: 2 },
+  bestBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, alignSelf: 'flex-start', marginBottom: 14 },
+  bestBadgeText: { fontSize: 12, fontWeight: '800' },
+
+  // Rank
+  rankRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
+  rankMedal: { fontSize: 16, width: 28, textAlign: 'center' },
+  hotelDot: { width: 8, height: 8, borderRadius: 4 },
+  rankName: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.6)', width: 55 },
+
+  // Price Chart
+  priceInsightRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
+  insightPill: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 },
+  insightText: { fontSize: 11, fontWeight: '700' },
+  priceChart: { flexDirection: 'row', gap: 4, paddingTop: 4 },
+  priceCol: { flex: 1, alignItems: 'center', gap: 4 },
+  priceLabel: { fontSize: 13, fontWeight: '800' },
+  cheapBadge: { backgroundColor: '#10b981', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
+  cheapBadgeText: { color: '#fff', fontSize: 8, fontWeight: '900', letterSpacing: 0.5 },
+  priceBarWrap: { width: '100%', height: 140, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.04)', justifyContent: 'flex-end', alignItems: 'center', overflow: 'hidden' },
+  priceNameDot: { width: 6, height: 6, borderRadius: 3, marginTop: 4 },
+  priceName: { fontSize: 10, color: 'rgba(255,255,255,0.45)', fontWeight: '600' },
+
+  // Quality Legend
+  qualityLegend: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 10 },
+  qualityLegendItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  qualityLegendDot: { width: 8, height: 8, borderRadius: 2 },
+  qualityLegendText: { fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: '500' },
+
+  // Hotel Legend
   legend: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 14 },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   legendDot: { width: 8, height: 8, borderRadius: 4 },
   legendText: { fontSize: 11, color: 'rgba(255,255,255,0.5)' },
-  // Rank chart
-  rankRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
-  rankNum: { fontSize: 12, fontWeight: '800', color: 'rgba(255,255,255,0.3)', width: 20 },
-  rankDot: { width: 8, height: 8, borderRadius: 4 },
-  rankName: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.6)', width: 50 },
-  rankBarWrap: { flex: 1 },
-  // Price chart
-  priceChart: { flexDirection: 'row', gap: 6, paddingTop: 8 },
-  // Score chart
-  scoreBlock: { marginBottom: 14 },
-  scoreLabel: { fontSize: 12, fontWeight: '700', color: 'rgba(255,255,255,0.6)', marginBottom: 6 },
-  scoreBarRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },
+
+  // Score Block
+  scoreBlock: { marginBottom: 16 },
+  scoreLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 },
+  scoreLabel: { fontSize: 13, fontWeight: '700', color: 'rgba(255,255,255,0.7)' },
+  scoreBarRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
   scoreDot: { width: 6, height: 6, borderRadius: 3 },
-  scoreBarWrap: { flex: 1 },
+  qualityBadge: { borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3, minWidth: 60, alignItems: 'center' },
+  qualityBadgeText: { fontSize: 9, fontWeight: '800' },
+
   // Overall
-  overallGrid: { flexDirection: 'row', justifyContent: 'space-around' },
-  overallItem: { alignItems: 'center', gap: 4 },
-  overallCircle: { width: 52, height: 52, borderRadius: 26, borderWidth: 2.5, justifyContent: 'center', alignItems: 'center' },
-  overallVal: { fontSize: 16, fontWeight: '800' },
-  overallName: { fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.5)' },
-  overallStars: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  overallGrid: { flexDirection: 'row', justifyContent: 'space-around', flexWrap: 'wrap', gap: 12 },
+  overallItem: { alignItems: 'center', width: (width - 80) / 3, gap: 3, marginBottom: 8 },
+  overallCenter: { position: 'absolute', top: 16, alignItems: 'center' },
+  overallVal: { fontSize: 18, fontWeight: '900' },
+  overallQuality: { fontSize: 8, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+  overallName: { fontSize: 11, fontWeight: '600', color: 'rgba(255,255,255,0.6)', marginTop: 2 },
+  overallMeta: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   overallRating: { fontSize: 10, fontWeight: '700', color: '#FFD700' },
   overallReviews: { fontSize: 9, color: 'rgba(255,255,255,0.3)' },
-  // Feature matrix
+
+  // Feature Matrix
   matrixHeader: { flexDirection: 'row', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)', paddingBottom: 8, marginBottom: 4 },
   matrixLabelCol: { flex: 1.2, flexDirection: 'row', alignItems: 'center', gap: 6 },
   matrixHotelCol: { flex: 1, alignItems: 'center', gap: 2 },
@@ -512,17 +610,22 @@ const styles = StyleSheet.create({
   matrixRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.03)' },
   matrixRowAlt: { backgroundColor: 'rgba(255,255,255,0.02)' },
   matrixLabel: { fontSize: 12, color: 'rgba(255,255,255,0.5)', fontWeight: '500' },
-  featureCountRow: { flexDirection: 'row', paddingTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)', marginTop: 4 },
-  featureCountCol: { flex: 1, alignItems: 'center', marginLeft: 50 },
-  featureCountVal: { fontSize: 14, fontWeight: '800' },
-  // Winner
-  winnerCard: { borderRadius: 20, padding: 18, alignItems: 'center', overflow: 'hidden', gap: 8, marginBottom: 14 },
-  winnerTitle: { fontSize: 17, fontWeight: '800', color: '#fff' },
-  winnerRow: { flexDirection: 'row', gap: 10, marginTop: 6 },
-  winnerItem: { flex: 1, backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: 14, padding: 12, alignItems: 'center', gap: 4 },
-  winnerItemTop: { borderWidth: 1.5, borderColor: '#FFD700' },
-  winnerRank: { fontSize: 18 },
-  winnerName: { fontSize: 13, fontWeight: '700', color: '#fff' },
-  winnerMatch: { fontSize: 16, fontWeight: '800', color: '#FFD700' },
-  winnerPrice: { fontSize: 11, color: 'rgba(255,255,255,0.6)' },
+  checkCircle: { width: 26, height: 26, borderRadius: 13, justifyContent: 'center', alignItems: 'center' },
+  xCircle: { width: 26, height: 26, borderRadius: 13, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)' },
+  featureCountBar: { flexDirection: 'row', justifyContent: 'space-around', marginTop: 16, paddingTop: 14, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)' },
+  featureCountItem: { alignItems: 'center', gap: 4 },
+  featureCountRing: { justifyContent: 'center', alignItems: 'center' },
+  featureCountVal: { position: 'absolute', fontSize: 14, fontWeight: '900' },
+  featureCountTotal: { fontSize: 9, color: 'rgba(255,255,255,0.35)' },
+
+  // Winner Podium
+  winnerCard: { borderRadius: 20, padding: 20, alignItems: 'center', overflow: 'hidden', gap: 6, marginBottom: 14 },
+  winnerTitle: { fontSize: 18, fontWeight: '800', color: '#fff' },
+  podium: { flexDirection: 'row', justifyContent: 'center', gap: 12, marginTop: 10, width: '100%' },
+  podiumCol: { flex: 1, alignItems: 'center', gap: 4 },
+  podiumMedal: { fontSize: 24 },
+  podiumName: { fontSize: 13, fontWeight: '700', color: '#fff' },
+  podiumMatch: { fontSize: 18, fontWeight: '900', color: '#FFD700' },
+  podiumBar: { width: '100%', borderRadius: 12, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 8 },
+  podiumPrice: { fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: '600' },
 });
