@@ -30,6 +30,12 @@ export interface Hotel {
     pets: number;
   };
   platformPrices: { platform: string; price: number }[];
+  /** 30-day daily price history — index 0 = 29 days ago, index 29 = today */
+  priceHistory: number[];
+  /** Review sentiment breakdown out of 10 */
+  sentiment: { positive: number; neutral: number; negative: number };
+  /** Value index = amenityScore composite / price (higher = better value) */
+  valueIndex: number;
 }
 
 export const categories = [
@@ -75,6 +81,9 @@ export const hotels: Hotel[] = [
     features: { wifi: true, pool: true, gym: true, spa: true, parking: true, restaurant: true, petFriendly: false, bar: true, roomService: true, laundry: true },
     tripMatch: { family: 72, business: 95, friends: 80, solo: 88, pets: 20 },
     platformPrices: [{ platform: 'Agoda', price: 245 }, { platform: 'Booking.com', price: 260 }, { platform: 'Expedia', price: 252 }, { platform: 'MakeMyTrip', price: 268 }],
+    priceHistory: [258,252,260,255,248,262,258,250,245,252,260,255,248,242,250,258,262,255,248,252,245,250,258,262,248,245,252,258,252,245],
+    sentiment: { positive: 78, neutral: 14, negative: 8 },
+    valueIndex: 3.8,
   },
   {
     id: 2, name: 'Budget Inn Express', location: 'Midtown, New York', price: 65, rating: 4.2, reviews: 1856,
@@ -84,6 +93,9 @@ export const hotels: Hotel[] = [
     features: { wifi: true, pool: false, gym: false, spa: false, parking: false, restaurant: false, petFriendly: true, bar: false, roomService: false, laundry: true },
     tripMatch: { family: 55, business: 40, friends: 60, solo: 80, pets: 90 },
     platformPrices: [{ platform: 'Agoda', price: 65 }, { platform: 'Booking.com', price: 70 }, { platform: 'Expedia', price: 68 }, { platform: 'MakeMyTrip', price: 72 }],
+    priceHistory: [68,70,65,62,60,65,68,70,72,68,65,62,60,65,68,70,65,62,60,63,65,68,70,68,65,62,60,65,68,65],
+    sentiment: { positive: 62, neutral: 28, negative: 10 },
+    valueIndex: 9.5,
   },
   {
     id: 3, name: 'Family Fun Resort', location: 'Central Park, New York', price: 155, rating: 4.5, reviews: 3210,
@@ -93,6 +105,9 @@ export const hotels: Hotel[] = [
     features: { wifi: true, pool: true, gym: true, spa: false, parking: true, restaurant: true, petFriendly: true, bar: false, roomService: true, laundry: true },
     tripMatch: { family: 96, business: 45, friends: 70, solo: 55, pets: 88 },
     platformPrices: [{ platform: 'Agoda', price: 155 }, { platform: 'Booking.com', price: 162 }, { platform: 'Expedia', price: 158 }, { platform: 'MakeMyTrip', price: 170 }],
+    priceHistory: [162,158,155,160,165,158,152,155,160,162,158,155,150,148,152,158,162,165,158,155,150,152,158,160,155,150,148,155,158,155],
+    sentiment: { positive: 74, neutral: 18, negative: 8 },
+    valueIndex: 5.5,
   },
   {
     id: 4, name: 'Royal Romance Suites', location: 'Times Square, New York', price: 195, rating: 4.8, reviews: 4521,
@@ -102,6 +117,9 @@ export const hotels: Hotel[] = [
     features: { wifi: true, pool: true, gym: false, spa: true, parking: true, restaurant: true, petFriendly: false, bar: true, roomService: true, laundry: true },
     tripMatch: { family: 50, business: 60, friends: 75, solo: 70, pets: 15 },
     platformPrices: [{ platform: 'Agoda', price: 195 }, { platform: 'Booking.com', price: 210 }, { platform: 'Expedia', price: 205 }, { platform: 'MakeMyTrip', price: 215 }],
+    priceHistory: [205,210,200,195,198,205,210,215,205,200,195,200,205,210,205,200,195,198,205,210,205,200,195,198,205,210,205,200,198,195],
+    sentiment: { positive: 82, neutral: 12, negative: 6 },
+    valueIndex: 4.9,
   },
   {
     id: 5, name: 'Executive Tower Hotel', location: 'SoHo, New York', price: 185, rating: 4.6, reviews: 1245,
@@ -111,6 +129,9 @@ export const hotels: Hotel[] = [
     features: { wifi: true, pool: false, gym: true, spa: false, parking: true, restaurant: true, petFriendly: false, bar: true, roomService: true, laundry: true },
     tripMatch: { family: 40, business: 92, friends: 65, solo: 85, pets: 10 },
     platformPrices: [{ platform: 'Agoda', price: 185 }, { platform: 'Booking.com', price: 190 }, { platform: 'Expedia', price: 188 }, { platform: 'MakeMyTrip', price: 195 }],
+    priceHistory: [190,188,185,188,192,188,185,182,185,188,192,188,185,182,185,188,190,192,188,185,182,185,188,190,188,185,182,185,188,185],
+    sentiment: { positive: 71, neutral: 20, negative: 9 },
+    valueIndex: 4.6,
   },
   {
     id: 6, name: 'Adventure Base Camp', location: 'Upper East Side, New York', price: 125, rating: 4.7, reviews: 2890,
@@ -120,6 +141,9 @@ export const hotels: Hotel[] = [
     features: { wifi: true, pool: false, gym: true, spa: false, parking: true, restaurant: true, petFriendly: true, bar: true, roomService: false, laundry: false },
     tripMatch: { family: 65, business: 30, friends: 92, solo: 90, pets: 85 },
     platformPrices: [{ platform: 'Agoda', price: 125 }, { platform: 'Booking.com', price: 130 }, { platform: 'Expedia', price: 128 }, { platform: 'MakeMyTrip', price: 135 }],
+    priceHistory: [130,128,125,122,120,125,128,132,128,125,122,120,125,128,130,125,122,120,122,125,128,130,128,125,122,120,122,125,128,125],
+    sentiment: { positive: 76, neutral: 16, negative: 8 },
+    valueIndex: 6.8,
   },
   {
     id: 7, name: 'Serenity Spa Resort', location: 'Chelsea, New York', price: 175, rating: 4.4, reviews: 1678,
@@ -129,6 +153,9 @@ export const hotels: Hotel[] = [
     features: { wifi: true, pool: true, gym: true, spa: true, parking: true, restaurant: true, petFriendly: false, bar: false, roomService: true, laundry: true },
     tripMatch: { family: 60, business: 50, friends: 70, solo: 92, pets: 15 },
     platformPrices: [{ platform: 'Agoda', price: 175 }, { platform: 'Booking.com', price: 182 }, { platform: 'Expedia', price: 178 }, { platform: 'MakeMyTrip', price: 188 }],
+    priceHistory: [180,178,175,172,170,175,178,182,178,175,172,170,175,178,180,178,175,172,170,172,175,178,182,178,175,172,170,175,178,175],
+    sentiment: { positive: 70, neutral: 22, negative: 8 },
+    valueIndex: 5.0,
   },
   {
     id: 8, name: 'The Ritz Platinum', location: 'Battery Park, New York', price: 320, rating: 4.9, reviews: 5234,
@@ -138,6 +165,9 @@ export const hotels: Hotel[] = [
     features: { wifi: true, pool: true, gym: true, spa: true, parking: true, restaurant: true, petFriendly: false, bar: true, roomService: true, laundry: true },
     tripMatch: { family: 70, business: 98, friends: 82, solo: 90, pets: 10 },
     platformPrices: [{ platform: 'Agoda', price: 320 }, { platform: 'Booking.com', price: 340 }, { platform: 'Expedia', price: 335 }, { platform: 'MakeMyTrip', price: 350 }],
+    priceHistory: [340,335,320,315,310,320,330,340,335,320,315,310,315,320,330,335,340,335,320,315,310,315,320,330,325,320,315,320,325,320],
+    sentiment: { positive: 86, neutral: 10, negative: 4 },
+    valueIndex: 3.0,
   },
   {
     id: 9, name: 'Thrifty Stay Motel', location: 'Greenwich Village, New York', price: 55, rating: 4.0, reviews: 2156,
@@ -147,6 +177,9 @@ export const hotels: Hotel[] = [
     features: { wifi: true, pool: false, gym: false, spa: false, parking: false, restaurant: false, petFriendly: true, bar: false, roomService: false, laundry: false },
     tripMatch: { family: 40, business: 25, friends: 50, solo: 75, pets: 95 },
     platformPrices: [{ platform: 'Agoda', price: 55 }, { platform: 'Booking.com', price: 58 }, { platform: 'Expedia', price: 56 }, { platform: 'MakeMyTrip', price: 60 }],
+    priceHistory: [58,56,55,52,50,55,58,60,58,55,52,50,52,55,58,56,55,52,50,52,55,58,60,58,55,52,50,52,55,55],
+    sentiment: { positive: 55, neutral: 30, negative: 15 },
+    valueIndex: 11.8,
   },
   {
     id: 10, name: 'Kids Paradise Hotel', location: 'Upper West Side, New York', price: 145, rating: 4.3, reviews: 1432,
@@ -156,6 +189,9 @@ export const hotels: Hotel[] = [
     features: { wifi: true, pool: true, gym: false, spa: false, parking: true, restaurant: true, petFriendly: true, bar: false, roomService: true, laundry: true },
     tripMatch: { family: 94, business: 30, friends: 55, solo: 45, pets: 92 },
     platformPrices: [{ platform: 'Agoda', price: 145 }, { platform: 'Booking.com', price: 150 }, { platform: 'Expedia', price: 148 }, { platform: 'MakeMyTrip', price: 155 }],
+    priceHistory: [150,148,145,142,140,145,148,152,148,145,142,140,142,145,150,148,145,142,140,142,145,148,152,148,145,142,140,142,148,145],
+    sentiment: { positive: 72, neutral: 20, negative: 8 },
+    valueIndex: 5.8,
   },
   {
     id: 11, name: 'Corporate Suites NYC', location: 'Financial District, New York', price: 195, rating: 4.6, reviews: 3567,
@@ -165,6 +201,9 @@ export const hotels: Hotel[] = [
     features: { wifi: true, pool: false, gym: true, spa: false, parking: true, restaurant: true, petFriendly: false, bar: true, roomService: true, laundry: true },
     tripMatch: { family: 35, business: 96, friends: 60, solo: 88, pets: 10 },
     platformPrices: [{ platform: 'Agoda', price: 195 }, { platform: 'Booking.com', price: 200 }, { platform: 'Expedia', price: 198 }, { platform: 'MakeMyTrip', price: 208 }],
+    priceHistory: [200,198,195,192,190,195,198,202,198,195,192,190,192,195,200,198,195,192,190,192,195,198,202,198,195,192,190,195,198,195],
+    sentiment: { positive: 80, neutral: 14, negative: 6 },
+    valueIndex: 4.8,
   },
   {
     id: 12, name: 'Honeymoon Haven', location: 'Tribeca, New York', price: 225, rating: 4.8, reviews: 4123,
@@ -174,6 +213,9 @@ export const hotels: Hotel[] = [
     features: { wifi: true, pool: true, gym: false, spa: true, parking: true, restaurant: true, petFriendly: false, bar: true, roomService: true, laundry: true },
     tripMatch: { family: 45, business: 50, friends: 65, solo: 60, pets: 10 },
     platformPrices: [{ platform: 'Agoda', price: 225 }, { platform: 'Booking.com', price: 240 }, { platform: 'Expedia', price: 235 }, { platform: 'MakeMyTrip', price: 245 }],
+    priceHistory: [235,240,225,220,218,225,232,240,235,225,220,218,222,228,235,240,235,228,222,218,222,228,235,240,232,225,220,222,228,225],
+    sentiment: { positive: 84, neutral: 11, negative: 5 },
+    valueIndex: 4.2,
   },
   {
     id: 13, name: 'Extreme Sports Lodge', location: 'East Village, New York', price: 115, rating: 4.5, reviews: 987,
@@ -183,6 +225,9 @@ export const hotels: Hotel[] = [
     features: { wifi: true, pool: false, gym: true, spa: false, parking: false, restaurant: false, petFriendly: true, bar: true, roomService: false, laundry: false },
     tripMatch: { family: 50, business: 25, friends: 95, solo: 88, pets: 80 },
     platformPrices: [{ platform: 'Agoda', price: 115 }, { platform: 'Booking.com', price: 120 }, { platform: 'Expedia', price: 118 }, { platform: 'MakeMyTrip', price: 125 }],
+    priceHistory: [120,118,115,112,110,115,118,122,118,115,112,110,112,115,120,118,115,112,110,112,115,118,122,118,115,112,110,112,118,115],
+    sentiment: { positive: 73, neutral: 19, negative: 8 },
+    valueIndex: 7.2,
   },
   {
     id: 14, name: 'Zen Garden Retreat', location: "Hell's Kitchen, New York", price: 165, rating: 4.7, reviews: 2345,
@@ -192,6 +237,9 @@ export const hotels: Hotel[] = [
     features: { wifi: true, pool: true, gym: true, spa: true, parking: true, restaurant: true, petFriendly: false, bar: false, roomService: true, laundry: true },
     tripMatch: { family: 55, business: 45, friends: 65, solo: 95, pets: 12 },
     platformPrices: [{ platform: 'Agoda', price: 165 }, { platform: 'Booking.com', price: 172 }, { platform: 'Expedia', price: 168 }, { platform: 'MakeMyTrip', price: 178 }],
+    priceHistory: [172,168,165,162,160,165,168,172,168,165,162,160,162,165,170,168,165,162,160,162,165,168,172,168,165,162,160,162,168,165],
+    sentiment: { positive: 77, neutral: 17, negative: 6 },
+    valueIndex: 5.2,
   },
   {
     id: 15, name: 'Value Stay Plus', location: 'Brooklyn Heights, New York', price: 75, rating: 4.1, reviews: 1876,
@@ -201,6 +249,9 @@ export const hotels: Hotel[] = [
     features: { wifi: true, pool: false, gym: false, spa: false, parking: true, restaurant: false, petFriendly: true, bar: false, roomService: false, laundry: true },
     tripMatch: { family: 50, business: 35, friends: 55, solo: 78, pets: 88 },
     platformPrices: [{ platform: 'Agoda', price: 75 }, { platform: 'Booking.com', price: 80 }, { platform: 'Expedia', price: 78 }, { platform: 'MakeMyTrip', price: 82 }],
+    priceHistory: [80,78,75,72,70,75,78,82,78,75,72,70,72,75,80,78,75,72,70,72,75,78,82,78,75,72,70,72,78,75],
+    sentiment: { positive: 60, neutral: 28, negative: 12 },
+    valueIndex: 9.1,
   },
   {
     id: 16, name: 'Imperial Luxury Palace', location: 'Williamsburg, New York', price: 285, rating: 4.8, reviews: 1234,
@@ -210,6 +261,9 @@ export const hotels: Hotel[] = [
     features: { wifi: true, pool: true, gym: true, spa: true, parking: true, restaurant: true, petFriendly: false, bar: true, roomService: true, laundry: true },
     tripMatch: { family: 68, business: 90, friends: 80, solo: 85, pets: 10 },
     platformPrices: [{ platform: 'Agoda', price: 285 }, { platform: 'Booking.com', price: 300 }, { platform: 'Expedia', price: 295 }, { platform: 'MakeMyTrip', price: 310 }],
+    priceHistory: [300,295,285,280,278,285,292,300,295,285,280,278,282,288,295,300,295,288,282,278,282,288,295,300,292,285,280,282,290,285],
+    sentiment: { positive: 83, neutral: 12, negative: 5 },
+    valueIndex: 3.4,
   },
 ];
 
