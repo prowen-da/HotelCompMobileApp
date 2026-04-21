@@ -141,13 +141,19 @@ from django.db import connection
 @csrf_exempt
 def top_amenities_comparison_view(request):
     print("-------------------------------inside top")
-    # data = json.loads(request.body)
     
-    traveler = 'business'
-    rateshop_id = '532155176'
-    
-    # traveler = data["travel_type"].lower()
-    # rateshop_id = data["rateshop_id"]
+    # Accept params from query string or POST body, fallback to defaults
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            traveler = data.get("travel_type", "business").lower()
+            rateshop_id = data.get("rateshop_id", "532155176")
+        except:
+            traveler = "business"
+            rateshop_id = "532155176"
+    else:
+        traveler = request.GET.get("travel_type", "business").lower()
+        rateshop_id = request.GET.get("rateshop_id", "532155176")
     
     print(traveler,rateshop_id)
     

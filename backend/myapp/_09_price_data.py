@@ -13,14 +13,18 @@ def normalize_ota_value(name: str) -> str:
 @csrf_exempt
 def hotel_ota_prices_view(request):
     
-    # data = json.loads(request.body)
-    
-    # rateshop_id = data["rateshop_id"]
-    # check_in_date = data["check_in_date"]
-    
-    
-    check_in_date = '2026-01-27'
-    rateshop_id = '532155176'
+    # Accept params from query string or POST body, fallback to defaults
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            check_in_date = data.get("check_in_date", "2026-01-27")
+            rateshop_id = data.get("rateshop_id", "532155176")
+        except:
+            check_in_date = "2026-01-27"
+            rateshop_id = "532155176"
+    else:
+        check_in_date = request.GET.get("check_in_date", "2026-01-27")
+        rateshop_id = request.GET.get("rateshop_id", "532155176")
     
     print(rateshop_id , check_in_date)
 

@@ -142,13 +142,18 @@ def hotel_comparison_v2(request):
     from .value_score.fetch_hotels import hotel_price_comparison_view
 
     try:
-        # data = json.loads(request.body)
-
-        # check_in_date = data.get("check_in_date")
-        # rateshop_id = data.get("rateshop_id")
-        
-        check_in_date = '2026-01-27'
-        rateshop_id = '532155176'
+        # Accept params from query string or POST body, fallback to defaults
+        if request.method == "POST":
+            try:
+                data = json.loads(request.body)
+                check_in_date = data.get("check_in_date", "2026-01-27")
+                rateshop_id = data.get("rateshop_id", "532155176")
+            except:
+                check_in_date = "2026-01-27"
+                rateshop_id = "532155176"
+        else:
+            check_in_date = request.GET.get("check_in_date", "2026-01-27")
+            rateshop_id = request.GET.get("rateshop_id", "532155176")
 
         if not check_in_date or not rateshop_id:
             return JsonResponse({"error": "Missing params"}, status=400)

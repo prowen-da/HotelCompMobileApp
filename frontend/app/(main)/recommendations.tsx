@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -28,6 +29,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import Svg, { Polygon, Line, Circle as SvgCircle, Text as SvgText } from 'react-native-svg';
+import { fetchHotelComparisonV2 } from '../../src/services/api';
 
 const { width } = Dimensions.get('window');
 const BAR_MAX = width - 150;
@@ -172,6 +174,9 @@ export default function RecommendationsScreen() {
   const insets = useSafeAreaInsets();
   const [selectedTrip, setSelectedTrip] = useState('family');
   const [petFilter, setPetFilter] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [dataSource, setDataSource] = useState<'api' | 'mock'>('mock');
+  const [hotels, setHotels] = useState(allHotels);
   const glowOpacity = useSharedValue(0.3);
 
   useEffect(() => {
@@ -179,12 +184,76 @@ export default function RecommendationsScreen() {
       withSequence(withTiming(0.5, { duration: 2500 }), withTiming(0.3, { duration: 2500 })),
       -1, true
     );
+    loadData();
   }, []);
+
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      const apiData = await fetchHotelComparisonV2();
+      if (apiData && apiData.length > 0) {
+        // Transform API data to match our local format
+        const transformed = apiData.map((h, i) => {
+          // Convert category-based scores to flat amenity scores
+          // Use the first available category's scores, or defaults
+          const categoryScores = h.scores || {};
+          const firstCategory = Object.values(categoryScores).find(c => c && Object.keys(c).length > 0) || {};
+          const scoreKeys = Object.keys(firstCategory).slice(0, 5);
+          
+          const scores: Record<string, number> = {};
+          scoreKeys.forEach(k => {
+            scores[k] = (firstCategory as any)[k] || 0;
+          });
+          
+          // If no scores, create defaults from value_score
+          if (scoreKeys.length === 0) {
+            scores['value'] = h.value_score?.business || h.value_score?.family || 50;
+            scores['quality'] = h.rating ? h.rating * 20 : 50;
+            scores['price'] = Math.max(10, 100 - (h.price / 100));
+            scores['location'] = 70;
+            scores['service'] = 70;
+          }
+
+          return {
+            id: h.id,
+            name: h.name,
+            short: h.short || h.name.split(' ')[0],
+            color: h.color,
+            gradient: h.gradient,
+            price: h.price,
+            rating: h.rating || 0,
+            reviews: h.reviews || 0,
+            petFriendly: h.petFriendly || false,
+            scores,
+            features: h.features || { wifi: false, pool: false, gym: false, spa: false, parking: false, restaurant: false, petFriendly: false, bar: false },
+            match: h.match || { family: 50, business: 50, friends: 50, solo: 50 },
+          };
+        });
+        setHotels(transformed);
+        setDataSource('api');
+      } else {
+        setDataSource('mock');
+      }
+    } catch (e) {
+      console.log('[Recommendations] API failed, using mock data');
+      setDataSource('mock');
+    }
+    setIsLoading(false);
+  };
   const glowStyle = useAnimatedStyle(() => ({ opacity: glowOpacity.value }));
 
-  const sorted = [...allHotels]
+  // Dynamic score categories from first hotel's scores
+  const dynamicScoreCategories = hotels.length > 0
+    ? Object.keys(hotels[0].scores).map(key => ({
+        key,
+        label: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' '),
+        icon: key === 'cleanliness' ? 'sparkles' : key === 'service' ? 'hand-left' : key === 'location' ? 'location' : key === 'value' ? 'cash' : key === 'comfort' ? 'bed' : key === 'quality' ? 'star' : key === 'price' ? 'cash' : 'ellipse',
+      }))
+    : scoreCategories.map(c => ({ ...c }));
+
+  const sorted = [...hotels]
     .filter((h) => !petFilter || h.petFriendly)
-    .sort((a, b) => (b.match as any)[selectedTrip] - (a.match as any)[selectedTrip]);
+    .sort((a, b) => ((b.match as any)[selectedTrip] || 0) - ((a.match as any)[selectedTrip] || 0));
 
   const tripInfo = tripTypes.find((t) => t.id === selectedTrip)!;
   const maxPrice = Math.max(...sorted.map((h) => h.price));
@@ -239,9 +308,26 @@ export default function RecommendationsScreen() {
             </View>
           </TouchableOpacity>
         </Animated.View>
+
+        {/* Data source indicator */}
+        {!isLoading && (
+          <Animated.View entering={FadeInUp.delay(500)} style={styles.dataSourceBadge}>
+            <Ionicons name={dataSource === 'api' ? 'cloud-done' : 'desktop'} size={12} color={dataSource === 'api' ? '#10b981' : '#F5A623'} />
+            <Text style={[styles.dataSourceText, { color: dataSource === 'api' ? '#10b981' : '#F5A623' }]}>
+              {dataSource === 'api' ? 'Live Data' : 'Sample Data'}
+            </Text>
+          </Animated.View>
+        )}
       </Animated.View>
 
-      {/* Charts */}
+      {/* Loading State */}
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#667eea" />
+          <Text style={styles.loadingText}>Fetching hotel data...</Text>
+        </View>
+      ) : (
+      /* Charts */
       <ScrollView style={styles.body} contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 30 }} showsVerticalScrollIndicator={false}>
 
         {/* ===== 1. TRIP MATCH RANKING ===== */}
@@ -428,8 +514,8 @@ export default function RecommendationsScreen() {
           </View>
 
           {/* Heatmap Rows */}
-          {scoreCategories.map((cat, cIdx) => {
-            const scores = sorted.map((h) => h.scores[cat.key]);
+          {dynamicScoreCategories.map((cat, cIdx) => {
+            const scores = sorted.map((h) => (h.scores as any)[cat.key] || 0);
             const best = Math.max(...scores);
             return (
               <Animated.View key={cat.key} entering={FadeInDown.delay(1000 + cIdx * 80)} style={[styles.heatRow, cIdx % 2 === 0 && styles.heatRowAlt]}>
@@ -438,7 +524,7 @@ export default function RecommendationsScreen() {
                   <Text style={styles.heatLabel}>{cat.label}</Text>
                 </View>
                 {sorted.map((h) => {
-                  const val = h.scores[cat.key];
+                  const val = (h.scores as any)[cat.key] || 0;
                   const isBest = val === best;
                   const color = qualityColor(val);
                   const intensity = Math.min(0.85, 0.2 + (val / 10) * 0.65);
@@ -604,6 +690,7 @@ export default function RecommendationsScreen() {
           </View>
         </Animated.View>
       </ScrollView>
+      )}
     </LinearGradient>
   );
 }
@@ -631,6 +718,10 @@ const styles = StyleSheet.create({
   petToggleText: { flex: 1, fontSize: 13, color: 'rgba(255,255,255,0.4)' },
   petToggleTextOn: { color: '#1D976C', fontWeight: '600' },
   petSwitch: { width: 36, height: 20, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.1)', justifyContent: 'center', paddingHorizontal: 2 },
+  dataSourceBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'center', marginTop: 8, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.06)' },
+  dataSourceText: { fontSize: 11, fontWeight: '700' },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 16 },
+  loadingText: { color: 'rgba(255,255,255,0.5)', fontSize: 14 },
   petSwitchOn: { backgroundColor: '#1D976C' },
   petSwitchDot: { width: 16, height: 16, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.3)' },
   petSwitchDotOn: { backgroundColor: '#fff', alignSelf: 'flex-end' },

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -27,6 +28,7 @@ import Animated, {
   ZoomIn,
 } from 'react-native-reanimated';
 import { getHotelsByIds, featureLabels, Hotel } from '../../src/data/hotels';
+import { fetchHotelComparisonV2, fetchOtaPrices } from '../../src/services/api';
 
 const { width } = Dimensions.get('window');
 const BAR_MAX = width - 165;
@@ -121,17 +123,121 @@ export default function ComparisonDetailScreen() {
   const insets = useSafeAreaInsets();
   const { ids } = useLocalSearchParams<{ ids?: string }>();
   const [activeTab, setActiveTab] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [dataSource, setDataSource] = useState<'api' | 'mock'>('mock');
+  const [hotels, setHotels] = useState<Hotel[]>([]);
   const glowOpacity = useSharedValue(0.3);
 
   useEffect(() => {
     glowOpacity.value = withRepeat(
       withSequence(withTiming(0.5, { duration: 2500 }), withTiming(0.3, { duration: 2500 })), -1, true
     );
+    loadData();
   }, []);
   const glowStyle = useAnimatedStyle(() => ({ opacity: glowOpacity.value }));
 
-  const selectedIds = ids ? ids.split(',').map(Number).filter(Boolean) : defaultIds;
-  const hotels = getHotelsByIds(selectedIds);
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      // Fetch from API
+      const [apiHotels, otaPrices] = await Promise.all([
+        fetchHotelComparisonV2(),
+        fetchOtaPrices(),
+      ]);
+
+      if (apiHotels && apiHotels.length > 0) {
+        // Transform API data to Hotel type with OTA prices
+        const transformed: Hotel[] = apiHotels.map((h, i) => {
+          // Build amenity scores from the scores object
+          const categoryScores = h.scores || {};
+          const firstCategory = Object.values(categoryScores).find(c => c && Object.keys(c).length > 0) || {};
+          const amenityScores: any = {};
+          const keys = Object.keys(firstCategory).slice(0, 5);
+          keys.forEach(k => { amenityScores[k] = ((firstCategory as any)[k] || 0) / 10; });
+          // Fill defaults if empty
+          if (keys.length === 0) {
+            amenityScores.value = h.value_score?.business ? h.value_score.business / 10 : 5;
+            amenityScores.quality = h.rating || 5;
+            amenityScores.price = Math.max(3, 10 - (h.price / 200));
+            amenityScores.location = 7;
+            amenityScores.service = 7;
+          }
+
+          // Find OTA prices for this hotel
+          const hotelOtaPrices = otaPrices.prices.find(
+            (p) => p.hotel_id === h.id || p.hotel_name === h.name
+          );
+          const platformPrices = hotelOtaPrices?.ota_list?.map((o) => ({
+            platform: o.ota_name,
+            price: o.ota_price,
+          })) || [{ platform: 'Direct', price: h.price }];
+
+          return {
+            id: h.id,
+            name: h.name,
+            location: '',
+            price: h.price,
+            rating: h.rating || 0,
+            reviews: h.reviews || 0,
+            amenities: [],
+            image: '',
+            category: 'business',
+            petFriendly: h.petFriendly || false,
+            gradient: h.gradient,
+            accent: h.color,
+            amenityScores,
+            features: h.features || { wifi: false, pool: false, gym: false, spa: false, parking: false, restaurant: false, bar: false, petFriendly: false },
+            tripMatch: {
+              family: h.match?.family || 50,
+              business: h.match?.business || 50,
+              friends: h.match?.friends || 50,
+              solo: h.match?.leisure || 50,
+              pets: h.petFriendly ? 80 : 10,
+            },
+            platformPrices,
+          } as Hotel;
+        });
+        setHotels(transformed);
+        setDataSource('api');
+      } else {
+        // Fallback to mock data
+        const selectedIds = ids ? ids.split(',').map(Number).filter(Boolean) : defaultIds;
+        setHotels(getHotelsByIds(selectedIds));
+        setDataSource('mock');
+      }
+    } catch (e) {
+      console.log('[ComparisonDetail] API failed, using mock data');
+      const selectedIds = ids ? ids.split(',').map(Number).filter(Boolean) : defaultIds;
+      setHotels(getHotelsByIds(selectedIds));
+      setDataSource('mock');
+    }
+    setIsLoading(false);
+  };
+
+  if (isLoading) {
+    return (
+      <LinearGradient colors={['#0f0c29', '#302b63', '#24243e']} style={styles.container}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 16 }}>
+          <ActivityIndicator size="large" color="#667eea" />
+          <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14 }}>Loading comparison data...</Text>
+        </View>
+      </LinearGradient>
+    );
+  }
+
+  if (hotels.length === 0) {
+    return (
+      <LinearGradient colors={['#0f0c29', '#302b63', '#24243e']} style={styles.container}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', gap: 16, paddingHorizontal: 24 }}>
+          <Ionicons name="analytics-outline" size={48} color="rgba(255,255,255,0.3)" />
+          <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 16, textAlign: 'center' }}>No hotel comparison data available</Text>
+          <TouchableOpacity onPress={() => router.back()} style={{ paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12, backgroundColor: 'rgba(102,126,234,0.2)' }}>
+            <Text style={{ color: '#667eea', fontWeight: '700' }}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
+    );
+  }
 
   // Compute aggregates
   const allLowest = hotels.map((h) => Math.min(...h.platformPrices.map((p) => p.price)));
@@ -158,6 +264,16 @@ export default function ComparisonDetailScreen() {
           <TouchableOpacity style={styles.addBtn}>
             <Ionicons name="add-circle-outline" size={24} color="rgba(255,255,255,0.5)" />
           </TouchableOpacity>
+        </Animated.View>
+
+        {/* Data source badge */}
+        <Animated.View entering={FadeInDown.delay(150)} style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 4 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 3, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.06)' }}>
+            <Ionicons name={dataSource === 'api' ? 'cloud-done' : 'desktop'} size={11} color={dataSource === 'api' ? '#10b981' : '#F5A623'} />
+            <Text style={{ fontSize: 10, fontWeight: '700', color: dataSource === 'api' ? '#10b981' : '#F5A623' }}>
+              {dataSource === 'api' ? 'Live Data' : 'Sample Data'}
+            </Text>
+          </View>
         </Animated.View>
 
         {/* Hotel pills */}
