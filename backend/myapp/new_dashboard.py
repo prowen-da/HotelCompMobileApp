@@ -146,14 +146,14 @@ def hotel_comparison_v2(request):
         if request.method == "POST":
             try:
                 data = json.loads(request.body)
-                check_in_date = data.get("check_in_date", "2026-01-27")
-                rateshop_id = data.get("rateshop_id", "532155176")
+                check_in_date = data.get("check_in_date", "2026-04-21")
+                rateshop_id = data.get("rateshop_id", "971700028")
             except:
-                check_in_date = "2026-01-27"
-                rateshop_id = "532155176"
+                check_in_date = "2026-04-21"
+                rateshop_id = "971700028"
         else:
-            check_in_date = request.GET.get("check_in_date", "2026-01-27")
-            rateshop_id = request.GET.get("rateshop_id", "532155176")
+            check_in_date = request.GET.get("check_in_date", "2026-04-21")
+            rateshop_id = request.GET.get("rateshop_id", "971700028")
 
         if not check_in_date or not rateshop_id:
             return JsonResponse({"error": "Missing params"}, status=400)

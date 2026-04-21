@@ -147,13 +147,13 @@ def top_amenities_comparison_view(request):
         try:
             data = json.loads(request.body)
             traveler = data.get("travel_type", "business").lower()
-            rateshop_id = data.get("rateshop_id", "532155176")
+            rateshop_id = data.get("rateshop_id", "971700028")
         except:
             traveler = "business"
-            rateshop_id = "532155176"
+            rateshop_id = "971700028"
     else:
         traveler = request.GET.get("travel_type", "business").lower()
-        rateshop_id = request.GET.get("rateshop_id", "532155176")
+        rateshop_id = request.GET.get("rateshop_id", "971700028")
     
     print(traveler,rateshop_id)
     
