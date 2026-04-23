@@ -121,7 +121,9 @@ function VBarAnimated({ value, maxValue, gradient, delay }: {
 // ── Main Screen ────────────────────────────────
 export default function ComparisonDetailScreen() {
   const insets = useSafeAreaInsets();
-  const { ids } = useLocalSearchParams<{ ids?: string }>();
+  const { ids, travelType, checkIn, checkOut } = useLocalSearchParams<{
+    ids?: string; travelType?: string; checkIn?: string; checkOut?: string;
+  }>();
   const [activeTab, setActiveTab] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [dataSource, setDataSource] = useState<'api' | 'mock'>('mock');
@@ -139,10 +141,10 @@ export default function ComparisonDetailScreen() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      // Fetch from API
+      // Fetch from API with params from home screen
       const [apiHotels, otaPrices] = await Promise.all([
-        fetchHotelComparisonV2(),
-        fetchOtaPrices(),
+        fetchHotelComparisonV2(checkIn, undefined),
+        fetchOtaPrices(checkIn, undefined),
       ]);
 
       if (apiHotels && apiHotels.length > 0) {

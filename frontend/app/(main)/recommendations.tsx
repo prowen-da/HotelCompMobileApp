@@ -8,7 +8,7 @@ import {
   Dimensions,
   ActivityIndicator,
 } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
@@ -172,11 +172,15 @@ function ProgressRing({ value, maxValue, color, size }: { value: number; maxValu
 // ── Main Screen ───────────────────────────────
 export default function RecommendationsScreen() {
   const insets = useSafeAreaInsets();
-  const [selectedTrip, setSelectedTrip] = useState('family');
-  const [petFilter, setPetFilter] = useState(false);
+  const { travelType, checkIn, checkOut, pets } = useLocalSearchParams<{
+    travelType?: string; checkIn?: string; checkOut?: string; pets?: string;
+  }>();
+  const [selectedTrip, setSelectedTrip] = useState(travelType || 'family');
+  const [petFilter, setPetFilter] = useState(pets === '1');
   const [isLoading, setIsLoading] = useState(true);
   const [dataSource, setDataSource] = useState<'api' | 'mock'>('mock');
   const [hotels, setHotels] = useState(allHotels);
+  const [searchInfo, setSearchInfo] = useState('');
   const glowOpacity = useSharedValue(0.3);
 
   useEffect(() => {
@@ -189,8 +193,9 @@ export default function RecommendationsScreen() {
 
   const loadData = async () => {
     setIsLoading(true);
+    if (checkIn) setSearchInfo(`${checkIn}${checkOut ? ' → ' + checkOut : ''}`);
     try {
-      const apiData = await fetchHotelComparisonV2();
+      const apiData = await fetchHotelComparisonV2(checkIn, undefined);
       if (apiData && apiData.length > 0) {
         // Transform API data to match our local format
         const transformed = apiData.map((h, i) => {
@@ -316,6 +321,13 @@ export default function RecommendationsScreen() {
             <Text style={[styles.dataSourceText, { color: dataSource === 'api' ? '#10b981' : '#F5A623' }]}>
               {dataSource === 'api' ? 'Live Data' : 'Sample Data'}
             </Text>
+            {searchInfo ? (
+              <>
+                <View style={{ width: 1, height: 10, backgroundColor: 'rgba(255,255,255,0.15)', marginHorizontal: 4 }} />
+                <Ionicons name="calendar-outline" size={10} color="rgba(255,255,255,0.4)" />
+                <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{searchInfo}</Text>
+              </>
+            ) : null}
           </Animated.View>
         )}
       </Animated.View>

@@ -92,7 +92,10 @@ export default function HomeScreen() {
 
   const handleSearch = () => {
     buttonScale.value = withSequence(withTiming(0.95, { duration: 100 }), withSpring(1));
-    setTimeout(() => router.push('/(main)/recommendations'), 200);
+    setTimeout(() => router.push({
+      pathname: '/(main)/recommendations',
+      params: { travelType: selectedTravelType, checkIn, checkOut, pets: travelWithPets ? '1' : '0' },
+    }), 200);
   };
 
   const selectedTrip = travelTypes.find((t) => t.id === selectedTravelType)!;
@@ -282,7 +285,10 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.quickText}>Map View</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.quickLink} onPress={() => router.push('/(main)/comparison-detail')}>
+          <TouchableOpacity style={styles.quickLink} onPress={() => router.push({
+            pathname: '/(main)/comparison-detail',
+            params: { travelType: selectedTravelType, checkIn, checkOut },
+          })}>
             <View style={[styles.quickIcon, { backgroundColor: 'rgba(167,139,250,0.15)' }]}>
               <Ionicons name="git-compare-outline" size={18} color="#a78bfa" />
             </View>
