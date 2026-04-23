@@ -288,11 +288,11 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.quickText}>Compare</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.quickLink} onPress={() => router.push('/(main)/favorites')}>
-            <View style={[styles.quickIcon, { backgroundColor: 'rgba(255,65,108,0.15)' }]}>
-              <Ionicons name="heart-outline" size={18} color="#ef4444" />
+          <TouchableOpacity style={styles.quickLink} onPress={() => router.push('/(main)/create-compset')}>
+            <View style={[styles.quickIcon, { backgroundColor: 'rgba(16,185,129,0.15)' }]}>
+              <Ionicons name="add-circle-outline" size={18} color="#10b981" />
             </View>
-            <Text style={styles.quickText}>Saved</Text>
+            <Text style={styles.quickText}>New Set</Text>
           </TouchableOpacity>
         </Animated.View>
       </ScrollView>
