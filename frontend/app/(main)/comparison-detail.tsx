@@ -244,6 +244,27 @@ export default function ComparisonDetailScreen() {
   const minPrice = Math.min(...allLowest);
   const maxPrice = Math.max(...allLowest);
 
+  // Dynamic amenity categories from actual hotel data
+  const dynamicAmenityData = (() => {
+    if (hotels.length === 0) return amenityData.map(a => ({ ...a }));
+    const firstHotel = hotels[0];
+    const keys = Object.keys(firstHotel.amenityScores || {});
+    if (keys.length === 0) return amenityData.map(a => ({ ...a }));
+    const iconMap: Record<string, string> = {
+      cleanliness: 'sparkles', service: 'hand-left', location: 'location',
+      value: 'cash', comfort: 'bed', parking: 'car', breakfast: 'restaurant',
+      business: 'briefcase', safety: 'shield-checkmark', family: 'people',
+      quality: 'star', price: 'pricetag', 'wi-fi': 'wifi', wifi: 'wifi',
+      gym: 'fitness', atmosphere: 'sunny', bar: 'wine', dining: 'restaurant',
+      restaurant: 'restaurant', transport: 'bus', pool: 'water', spa: 'leaf',
+    };
+    return keys.map(k => ({
+      key: k,
+      label: k.charAt(0).toUpperCase() + k.slice(1).replace(/_/g, ' ').replace(/-/g, ' '),
+      icon: iconMap[k.toLowerCase()] || 'ellipse',
+    }));
+  })();
+
   return (
     <LinearGradient colors={['#0f0c29', '#302b63', '#24243e']} style={styles.container}>
       <Animated.View style={[styles.orb, styles.orb1, glowStyle]} />
@@ -327,14 +348,14 @@ export default function ComparisonDetailScreen() {
               ))}
             </Animated.View>
 
-            {amenityData.map((cat, cIdx) => (
+            {dynamicAmenityData.map((cat, cIdx) => (
               <Animated.View key={cat.key} entering={FadeInDown.delay(200 + cIdx * 80)} style={styles.ratingBlock}>
                 <View style={styles.catLabelRow}>
                   <Ionicons name={cat.icon as any} size={14} color="rgba(255,255,255,0.5)" />
                   <Text style={styles.catLabel}>{cat.label}</Text>
                   {/* Show who wins this category */}
                   {(() => {
-                    const best = [...hotels].sort((a, b) => b.amenityScores[cat.key] - a.amenityScores[cat.key])[0];
+                    const best = [...hotels].sort((a, b) => ((b.amenityScores as any)[cat.key] || 0) - ((a.amenityScores as any)[cat.key] || 0))[0];
                     return (
                       <View style={[styles.winsBadge, { backgroundColor: best.accent + '20' }]}>
                         <Ionicons name="trophy" size={10} color="#FFD700" />
@@ -346,7 +367,7 @@ export default function ComparisonDetailScreen() {
                   })()}
                 </View>
                 {hotels.map((h, hIdx) => {
-                  const val = h.amenityScores[cat.key];
+                  const val = (h.amenityScores as any)[cat.key] || 0;
                   return (
                     <View key={h.id} style={styles.ratingBarRow}>
                       <View style={[styles.ratingDot, { backgroundColor: h.accent }]} />
@@ -355,7 +376,7 @@ export default function ComparisonDetailScreen() {
                           value={val} maxValue={10}
                           gradient={qGradient(val)}
                           delay={200 + cIdx * 80 + hIdx * 50}
-                          label={val.toFixed(1)}
+                          label={typeof val === 'number' ? val.toFixed(1) : '0'}
                         />
                       </View>
                       <View style={[styles.qBadge, { backgroundColor: qColor(val) + '20' }]}>
@@ -375,7 +396,8 @@ export default function ComparisonDetailScreen() {
               </View>
               <View style={styles.overallGrid}>
                 {hotels.map((h, i) => {
-                  const avg = Object.values(h.amenityScores).reduce((a, b) => a + b, 0) / 5;
+                  const scores = Object.values(h.amenityScores || {}).filter(v => typeof v === 'number');
+                  const avg = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
                   const color = qColor(avg);
                   return (
                     <Animated.View key={h.id} entering={ZoomIn.delay(800 + i * 120)} style={styles.overallItem}>
