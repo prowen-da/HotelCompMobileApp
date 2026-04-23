@@ -9,6 +9,8 @@ import {
   Platform,
   ScrollView,
   Dimensions,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -29,6 +31,7 @@ import Animated, {
   SlideInLeft,
   ZoomIn,
 } from 'react-native-reanimated';
+import { useAuth } from '../../src/context/AuthContext';
 
 const { width, height } = Dimensions.get('window');
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
@@ -38,7 +41,10 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const insets = useSafeAreaInsets();
+  const { login, guestLogin } = useAuth();
 
   const buttonScale = useSharedValue(1);
   const googleScale = useSharedValue(0);
@@ -65,14 +71,33 @@ export default function LoginScreen() {
     );
   }, []);
 
-  const handleLogin = () => {
-    buttonScale.value = withSequence(
-      withTiming(0.95, { duration: 100 }),
-      withSpring(1)
-    );
-    setTimeout(() => {
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      setErrorMsg('Please enter both email and password');
+      return;
+    }
+    setErrorMsg('');
+    setIsLoading(true);
+    buttonScale.value = withSequence(withTiming(0.95, { duration: 100 }), withSpring(1));
+    const result = await login(email.trim(), password);
+    setIsLoading(false);
+    if (result.success) {
       router.replace('/(main)/home');
-    }, 200);
+    } else {
+      setErrorMsg(result.error || 'Login failed');
+    }
+  };
+
+  const handleGuestLogin = async () => {
+    setErrorMsg('');
+    setIsLoading(true);
+    const result = await guestLogin();
+    setIsLoading(false);
+    if (result.success) {
+      router.replace('/(main)/home');
+    } else {
+      setErrorMsg(result.error || 'Guest login failed');
+    }
   };
 
   const buttonAnimatedStyle = useAnimatedStyle(() => ({
@@ -225,11 +250,20 @@ export default function LoginScreen() {
                   </View>
                 </View>
 
+                {/* Error Message */}
+                {errorMsg ? (
+                  <View style={styles.errorContainer}>
+                    <Ionicons name="alert-circle" size={16} color="#ef4444" />
+                    <Text style={styles.errorText}>{errorMsg}</Text>
+                  </View>
+                ) : null}
+
                 {/* Sign In Button */}
                 <AnimatedTouchable
                   style={[styles.signInButton, buttonAnimatedStyle]}
                   onPress={handleLogin}
                   activeOpacity={0.9}
+                  disabled={isLoading}
                 >
                   <LinearGradient
                     colors={['#667eea', '#764ba2']}
@@ -237,8 +271,14 @@ export default function LoginScreen() {
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                   >
-                    <Text style={styles.signInText}>Sign In</Text>
-                    <Ionicons name="arrow-forward" size={20} color="#fff" />
+                    {isLoading ? (
+                      <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                      <>
+                        <Text style={styles.signInText}>Sign In</Text>
+                        <Ionicons name="arrow-forward" size={20} color="#fff" />
+                      </>
+                    )}
                   </LinearGradient>
                 </AnimatedTouchable>
 
@@ -250,12 +290,12 @@ export default function LoginScreen() {
                 </View>
 
                 {/* Google Sign-In — Full-Width Button */}
-                <AnimatedTouchable style={[styles.googleButton, googleStyle]} activeOpacity={0.8}>
+                <AnimatedTouchable style={[styles.googleButton, googleStyle]} activeOpacity={0.8} onPress={handleGuestLogin} disabled={isLoading}>
                   <View style={styles.googleInner}>
                     <View style={styles.googleLogoWrap}>
-                      <Ionicons name="logo-google" size={20} color="#fff" />
+                      <Ionicons name="person-outline" size={20} color="#fff" />
                     </View>
-                    <Text style={styles.googleText}>Continue with Google</Text>
+                    <Text style={styles.googleText}>Continue as Guest</Text>
                   </View>
                 </AnimatedTouchable>
               </View>
@@ -521,6 +561,23 @@ const styles = StyleSheet.create({
   },
   termsLink: {
     color: 'rgba(255,255,255,0.6)',
+    fontWeight: '600',
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: 'rgba(239,68,68,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(239,68,68,0.2)',
+    marginBottom: 4,
+  },
+  errorText: {
+    flex: 1,
+    color: '#ef4444',
+    fontSize: 13,
     fontWeight: '600',
   },
 });

@@ -3,39 +3,43 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
+import { AuthProvider } from '../src/context/AuthContext';
 
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={styles.container}>
-      <StatusBar style="light" />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          animation: 'slide_from_right',
-          contentStyle: { backgroundColor: 'transparent' },
-        }}
-      >
-        <Stack.Screen name="index" />
-        <Stack.Screen name="onboarding" />
-        <Stack.Screen name="welcome" />
-        <Stack.Screen name="(auth)/login" />
-        <Stack.Screen name="(auth)/register" />
-        <Stack.Screen name="(auth)/forgot-password" />
-        <Stack.Screen name="(auth)/otp-verification" />
-        <Stack.Screen name="(auth)/create-password" />
-        <Stack.Screen name="(main)/home" />
-        <Stack.Screen name="(main)/search-location" />
-        <Stack.Screen name="(main)/comparison" />
-        <Stack.Screen name="(main)/hotel-listing" />
-        <Stack.Screen name="(main)/hotel-details" />
-        <Stack.Screen name="(main)/map-view" />
-        <Stack.Screen name="(main)/profile" />
-        <Stack.Screen name="(main)/favorites" />
-        <Stack.Screen name="(main)/comparison-detail" />
-        <Stack.Screen name="(main)/recommendations" />
-        <Stack.Screen name="(main)/notifications" />
-        <Stack.Screen name="(main)/settings" />
-      </Stack>
+      <AuthProvider>
+        <StatusBar style="light" />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            animation: 'slide_from_right',
+            contentStyle: { backgroundColor: 'transparent' },
+          }}
+        >
+          <Stack.Screen name="index" />
+          <Stack.Screen name="onboarding" />
+          <Stack.Screen name="welcome" />
+          <Stack.Screen name="(auth)/login" />
+          <Stack.Screen name="(auth)/register" />
+          <Stack.Screen name="(auth)/forgot-password" />
+          <Stack.Screen name="(auth)/otp-verification" />
+          <Stack.Screen name="(auth)/create-password" />
+          <Stack.Screen name="(main)/home" />
+          <Stack.Screen name="(main)/search-location" />
+          <Stack.Screen name="(main)/comparison" />
+          <Stack.Screen name="(main)/hotel-listing" />
+          <Stack.Screen name="(main)/hotel-details" />
+          <Stack.Screen name="(main)/map-view" />
+          <Stack.Screen name="(main)/profile" />
+          <Stack.Screen name="(main)/favorites" />
+          <Stack.Screen name="(main)/comparison-detail" />
+          <Stack.Screen name="(main)/recommendations" />
+          <Stack.Screen name="(main)/notifications" />
+          <Stack.Screen name="(main)/settings" />
+          <Stack.Screen name="(main)/create-compset" />
+        </Stack>
+      </AuthProvider>
     </GestureHandlerRootView>
   );
 }

@@ -8,19 +8,32 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { forgotPassword } from '../../src/services/api';
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const insets = useSafeAreaInsets();
 
-  const handleNext = () => {
-    router.push('/(auth)/otp-verification');
+  const handleNext = async () => {
+    if (!email.trim()) { setErrorMsg('Please enter your email'); return; }
+    setErrorMsg('');
+    setIsLoading(true);
+    const result = await forgotPassword(email.trim());
+    setIsLoading(false);
+    if (result.success) {
+      router.push({ pathname: '/(auth)/otp-verification', params: { email: email.trim(), mode: 'reset' } });
+    } else {
+      setErrorMsg(result.error || 'Could not send OTP');
+    }
   };
 
   return (

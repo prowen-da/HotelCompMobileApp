@@ -8,22 +8,40 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { resetPassword } from '../../src/services/api';
 
 export default function CreatePasswordScreen() {
+  const { email } = useLocalSearchParams<{ email?: string }>();
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const insets = useSafeAreaInsets();
 
-  const handleNext = () => {
-    router.replace('/(auth)/login');
+  const handleNext = async () => {
+    if (newPassword !== confirmPassword) { setErrorMsg('Passwords do not match'); return; }
+    if (newPassword.length < 6) { setErrorMsg('Password must be at least 6 characters'); return; }
+    setErrorMsg('');
+    setIsLoading(true);
+    const result = await resetPassword(email || '', 0, newPassword);
+    setIsLoading(false);
+    if (result.success) {
+      Alert.alert('Success', 'Password has been reset. Please login with your new password.', [
+        { text: 'Login', onPress: () => router.replace('/(auth)/login') }
+      ]);
+    } else {
+      setErrorMsg(result.error || 'Failed to reset password');
+    }
   };
 
   return (

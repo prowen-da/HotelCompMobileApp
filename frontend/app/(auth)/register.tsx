@@ -8,22 +8,39 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '../../src/context/AuthContext';
 
 export default function RegisterScreen() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const insets = useSafeAreaInsets();
+  const { registerUser } = useAuth();
 
-  const handleRegister = () => {
-    router.push('/(auth)/otp-verification');
+  const handleRegister = async () => {
+    if (!fullName.trim() || !email.trim() || !password.trim()) {
+      setErrorMsg('Please fill in all fields');
+      return;
+    }
+    setErrorMsg('');
+    setIsLoading(true);
+    const result = await registerUser(fullName.trim(), email.trim(), password);
+    setIsLoading(false);
+    if (result.success) {
+      router.push({ pathname: '/(auth)/otp-verification', params: { email: email.trim(), mode: 'register' } });
+    } else {
+      setErrorMsg(result.error || 'Registration failed');
+    }
   };
 
   return (
@@ -115,7 +132,14 @@ export default function RegisterScreen() {
                   </View>
                 </View>
 
-                <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+                {errorMsg ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: 12, borderRadius: 12, backgroundColor: 'rgba(239,68,68,0.1)', borderWidth: 1, borderColor: 'rgba(239,68,68,0.2)', marginBottom: 8 }}>
+                    <Ionicons name="alert-circle" size={16} color="#ef4444" />
+                    <Text style={{ flex: 1, color: '#ef4444', fontSize: 13, fontWeight: '600' }}>{errorMsg}</Text>
+                  </View>
+                ) : null}
+
+                <TouchableOpacity style={styles.registerButton} onPress={handleRegister} disabled={isLoading}>
                   <LinearGradient
                     colors={['rgba(255,255,255,0.9)', 'rgba(255,255,255,0.95)']}
                     style={styles.registerGradient}

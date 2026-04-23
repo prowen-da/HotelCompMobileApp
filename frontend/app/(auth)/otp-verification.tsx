@@ -8,15 +8,21 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { verifyOtp, resendOtp } from '../../src/services/api';
 
 export default function OTPVerificationScreen() {
+  const { email, mode } = useLocalSearchParams<{ email?: string; mode?: string }>();
   const [otp, setOtp] = useState(['', '', '', '']);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const inputRefs = useRef<TextInput[]>([]);
   const insets = useSafeAreaInsets();
 
@@ -36,12 +42,34 @@ export default function OTPVerificationScreen() {
     }
   };
 
-  const handleContinue = () => {
-    router.push('/(auth)/create-password');
+  const handleContinue = async () => {
+    const otpCode = otp.join('');
+    if (otpCode.length < 4) return;
+    setErrorMsg('');
+    setIsLoading(true);
+    const result = await verifyOtp(email || '', parseInt(otpCode));
+    setIsLoading(false);
+    if (result.success) {
+      if (mode === 'reset') {
+        router.push({ pathname: '/(auth)/create-password', params: { email: email || '' } });
+      } else {
+        Alert.alert('Success', 'Email verified! You can now log in.', [
+          { text: 'Login', onPress: () => router.replace('/(auth)/login') }
+        ]);
+      }
+    } else {
+      setErrorMsg(result.error || 'Invalid OTP');
+    }
   };
 
-  const handleResend = () => {
-    // Resend OTP logic
+  const handleResend = async () => {
+    setErrorMsg('');
+    const result = await resendOtp(email || '');
+    if (result.success) {
+      Alert.alert('OTP Sent', 'A new OTP has been sent to your email.');
+    } else {
+      setErrorMsg(result.error || 'Failed to resend OTP');
+    }
   };
 
   return (

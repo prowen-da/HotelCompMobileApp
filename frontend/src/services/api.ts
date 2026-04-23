@@ -249,3 +249,76 @@ export async function fetchCitySuggestions(query: string): Promise<any[]> {
     return [];
   }
 }
+
+// Verify OTP
+export async function verifyOtp(email: string, otp: number): Promise<{ success: boolean; data?: any; error?: string }> {
+  try {
+    const url = `${BACKEND_URL}/api/auth/verify-otp/`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, otp }),
+    });
+    const json = await res.json();
+    if (res.ok) return { success: true, data: json };
+    return { success: false, error: json.error || 'OTP verification failed' };
+  } catch (error) {
+    console.error('[API] verifyOtp error:', error);
+    return { success: false, error: 'Network error' };
+  }
+}
+
+// Resend OTP
+export async function resendOtp(email: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const url = `${BACKEND_URL}/api/auth/resend-otp/`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const json = await res.json();
+    if (res.ok) return { success: true };
+    return { success: false, error: json.error || 'Failed to resend OTP' };
+  } catch (error) {
+    console.error('[API] resendOtp error:', error);
+    return { success: false, error: 'Network error' };
+  }
+}
+
+// Forgot Password
+export async function forgotPassword(email: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const url = `${BACKEND_URL}/api/auth/forgot-password/`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const json = await res.json();
+    if (res.ok) return { success: true };
+    return { success: false, error: json.error || json.message || 'Request failed' };
+  } catch (error) {
+    console.error('[API] forgotPassword error:', error);
+    return { success: false, error: 'Network error' };
+  }
+}
+
+// Reset Password
+export async function resetPassword(email: string, otp: number, newPassword: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const url = `${BACKEND_URL}/api/auth/reset-password/`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, otp, new_password: newPassword }),
+    });
+    const json = await res.json();
+    if (res.ok) return { success: true };
+    return { success: false, error: json.error || 'Failed to reset password' };
+  } catch (error) {
+    console.error('[API] resetPassword error:', error);
+    return { success: false, error: 'Network error' };
+  }
+}
+
