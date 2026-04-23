@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -26,6 +27,7 @@ import Animated, {
   SlideInRight,
   ZoomIn,
 } from 'react-native-reanimated';
+import { useAuth } from '../../src/context/AuthContext';
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
@@ -65,6 +67,7 @@ const menuSections = [
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
+  const { isGuest, userId, logout } = useAuth();
   const avatarScale = useSharedValue(0);
   const glowOpacity = useSharedValue(0.3);
 
@@ -80,6 +83,23 @@ export default function ProfileScreen() {
     transform: [{ scale: avatarScale.value }],
   }));
   const glowStyle = useAnimatedStyle(() => ({ opacity: glowOpacity.value }));
+
+  const handleMenuPress = async (label: string, route: string | null) => {
+    if (label === 'Log Out') {
+      Alert.alert('Log Out', 'Are you sure you want to log out?', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Log Out', style: 'destructive', onPress: async () => {
+          await logout();
+          router.replace('/welcome');
+        }},
+      ]);
+      return;
+    }
+    if (route) router.push(route as any);
+  };
+
+  const displayName = isGuest ? 'Guest User' : `User #${userId || ''}`;
+  const displayEmail = isGuest ? 'Browsing as guest' : `ID: ${userId || 'N/A'}`;
 
   return (
     <LinearGradient colors={['#0f0c29', '#302b63', '#24243e']} style={styles.container}>
@@ -117,8 +137,8 @@ export default function ProfileScreen() {
               </View>
             </LinearGradient>
           </Animated.View>
-          <Animated.Text entering={FadeInUp.delay(400)} style={styles.userName}>Alex Johnson</Animated.Text>
-          <Animated.Text entering={FadeInUp.delay(500)} style={styles.userEmail}>alex.johnson@email.com</Animated.Text>
+          <Animated.Text entering={FadeInUp.delay(400)} style={styles.userName}>{displayName}</Animated.Text>
+          <Animated.Text entering={FadeInUp.delay(500)} style={styles.userEmail}>{displayEmail}</Animated.Text>
 
           <Animated.View entering={FadeInUp.delay(500)} style={styles.statsRow}>
             {stats.map((stat, i) => (
@@ -147,7 +167,7 @@ export default function ProfileScreen() {
                   key={item.label}
                   entering={SlideInRight.delay(800 + sIdx * 150 + idx * 80)}
                   style={[styles.menuItem, idx < section.items.length - 1 && styles.menuItemBorder]}
-                  onPress={() => item.route && router.push(item.route as any)}
+                  onPress={() => handleMenuPress(item.label, item.route)}
                   activeOpacity={0.7}
                 >
                   <View style={[styles.menuIconWrap, { backgroundColor: item.color + '20' }]}>

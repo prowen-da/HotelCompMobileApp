@@ -14,8 +14,10 @@ import Animated, {
   Easing,
   interpolate,
 } from 'react-native-reanimated';
+import { useAuth } from '../src/context/AuthContext';
 
 export default function SplashScreen() {
+  const { isLoggedIn, isLoading } = useAuth();
   const logoScale = useSharedValue(0);
   const logoRotate = useSharedValue(0);
   const titleOpacity = useSharedValue(0);
@@ -51,14 +53,22 @@ export default function SplashScreen() {
         true
       )
     );
+  }, []);
 
-    // Navigate to onboarding after delay
+  // Navigate after splash animation + auth check
+  useEffect(() => {
+    if (isLoading) return; // Wait for auth check to complete
+
     const timer = setTimeout(() => {
-      router.replace('/onboarding');
-    }, 2500);
+      if (isLoggedIn) {
+        router.replace('/(main)/home');
+      } else {
+        router.replace('/onboarding');
+      }
+    }, 2000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isLoading, isLoggedIn]);
 
   const logoAnimatedStyle = useAnimatedStyle(() => ({
     transform: [
